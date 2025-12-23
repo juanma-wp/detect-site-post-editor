@@ -173,9 +173,6 @@ class AssetEnqueuingTest extends WP_UnitTestCase {
 	 * Test that post-edit-only script is enqueued on post edit screens
 	 */
 	public function test_post_edit_only_script_enqueued() {
-		// Create a post.
-		$post_id = static::factory()->post->create();
-
 		// Simulate post edit screen.
 		set_current_screen( 'post' );
 
@@ -248,7 +245,7 @@ class AssetEnqueuingTest extends WP_UnitTestCase {
 		// Trigger the action.
 		do_action( 'admin_enqueue_scripts', 'post.php' );
 
-		// Check if multiple scripts are enqueued
+		// Check if multiple scripts are enqueued.
 		$this->assertTrue( wp_script_is( 'cre-editor-only', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'cre-publisher-only', 'enqueued' ) );
 		$this->assertTrue( wp_script_is( 'cre-no-site-editor', 'enqueued' ) );

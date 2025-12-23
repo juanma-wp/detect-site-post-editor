@@ -1,1 +1,0 @@
-console.log("✓ Client-side: Running in Block Editor");

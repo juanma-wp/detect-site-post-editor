@@ -7,13 +7,15 @@
  * Author: Your Name
  * License: MIT
  * Text Domain: conditional-rendering-examples
+ *
+ * @package ConditionalRenderingExamples
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Load server-side detection functions
+// Load server-side detection functions.
 require_once plugin_dir_path( __FILE__ ) . 'includes/server-side-detection.php';
 
 /**
@@ -43,7 +45,7 @@ add_action( 'enqueue_block_editor_assets', 'conditional_rendering_examples_enque
  * Conditionally enqueue assets based on server-side detection
  */
 function conditional_rendering_examples_enqueue_conditional_assets() {
-	// Example 1: Only load on block editor screens
+	// Example 1: Only load on block editor screens.
 	if ( cre_is_block_editor() ) {
 		wp_enqueue_script(
 			'cre-editor-only',
@@ -58,7 +60,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 		);
 	}
 
-	// Example 2: Only load for specific post types
+	// Example 2: Only load for specific post types.
 	if ( cre_is_post_type( 'page' ) ) {
 		wp_enqueue_script(
 			'cre-page-only',
@@ -73,7 +75,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 		);
 	}
 
-	// Example 3: Only load for users with specific capabilities
+	// Example 3: Only load for users with specific capabilities.
 	if ( cre_user_can_publish_posts() ) {
 		wp_enqueue_script(
 			'cre-publisher-only',
@@ -88,7 +90,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 		);
 	}
 
-	// Example 4: Exclude Site Editor
+	// Example 4: Exclude Site Editor.
 	if ( ! cre_is_site_editor() ) {
 		wp_enqueue_script(
 			'cre-no-site-editor',
@@ -103,7 +105,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 		);
 	}
 
-	// Example 5: Only on post edit screens
+	// Example 5: Only on post edit screens.
 	if ( cre_is_post_edit_screen() ) {
 		wp_enqueue_script(
 			'cre-post-edit-only',
@@ -124,27 +126,30 @@ add_action( 'admin_enqueue_scripts', 'conditional_rendering_examples_enqueue_con
  * Register custom post type for testing
  */
 function conditional_rendering_examples_register_post_types() {
-	// Register a viewable custom post type
+	// Register a viewable custom post type.
 	register_post_type(
 		'product',
 		array(
-			'labels'              => array(
+			'labels'       => array(
 				'name'          => 'Products',
 				'singular_name' => 'Product',
 			),
-			'public'              => true,
-			'has_archive'         => true,
-			'show_in_rest'        => true,
-			'supports'            => array( 'title', 'editor', 'custom-fields' ),
-			'show_in_menu'        => true,
-			'menu_icon'           => 'dashicons-products',
+			'public'       => true,
+			'has_archive'  => true,
+			'show_in_rest' => true,
+			'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			'show_in_menu' => true,
+			'menu_icon'    => 'dashicons-products',
 		)
 	);
 }
 add_action( 'init', 'conditional_rendering_examples_register_post_types' );
 
 /**
- * Register page templates for testing
+ * Register page templates for testing.
+ *
+ * @param array $templates The existing page templates.
+ * @return array The modified page templates
  */
 function conditional_rendering_examples_register_templates( $templates ) {
 	$templates['full-width'] = 'Full Width Template';

@@ -13,16 +13,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get the current screen object if available
+ *
+ * @return WP_Screen|false Screen object or false if not available
+ */
+function cre_get_current_screen() {
+	if ( ! function_exists( 'get_current_screen' ) ) {
+		return false;
+	}
+	return get_current_screen();
+}
+
+/**
  * Check if the current screen is using the block editor
  *
  * @return bool True if block editor is active, false otherwise
  */
 function cre_is_block_editor() {
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return false;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	return $screen && $screen->is_block_editor();
 }
 
@@ -32,11 +40,7 @@ function cre_is_block_editor() {
  * @return bool True if on post edit screen, false otherwise
  */
 function cre_is_post_edit_screen() {
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return false;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	return $screen && $screen->base === 'post';
 }
 
@@ -47,21 +51,17 @@ function cre_is_post_edit_screen() {
  */
 function cre_is_site_editor() {
 	global $pagenow;
-	return $pagenow === 'site-editor.php';
+	return 'site-editor.php' === $pagenow;
 }
 
 /**
  * Check if current screen is for a specific post type
  *
- * @param string|array $post_type Single post type or array of post types to check
+ * @param string|array $post_type Single post type or array of post types to check.
  * @return bool True if matches, false otherwise
  */
 function cre_is_post_type( $post_type ) {
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return false;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	if ( ! $screen ) {
 		return false;
 	}
@@ -76,15 +76,11 @@ function cre_is_post_type( $post_type ) {
 /**
  * Check if current post type is NOT in the excluded list
  *
- * @param array $excluded_post_types Array of post types to exclude
+ * @param array $excluded_post_types Array of post types to exclude.
  * @return bool True if not excluded, false if excluded
  */
 function cre_is_not_post_type( $excluded_post_types ) {
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return true;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	if ( ! $screen ) {
 		return true;
 	}
@@ -122,7 +118,7 @@ function cre_user_can_edit_pages() {
 /**
  * Check if current post has a specific template
  *
- * @param string $template Template slug to check
+ * @param string $template Template slug to check.
  * @return bool True if template matches, false otherwise
  */
 function cre_is_template( $template ) {
@@ -139,7 +135,7 @@ function cre_is_template( $template ) {
 /**
  * Check if current post has a specific status
  *
- * @param string|array $status Single status or array of statuses to check
+ * @param string|array $status Single status or array of statuses to check.
  * @return bool True if status matches, false otherwise
  */
 function cre_is_post_status( $status ) {
@@ -164,11 +160,7 @@ function cre_is_post_status( $status ) {
  * @return bool True if viewable, false otherwise
  */
 function cre_is_viewable_post_type() {
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return false;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	if ( ! $screen || ! $screen->post_type ) {
 		return false;
 	}
@@ -190,11 +182,7 @@ function cre_is_design_post_type() {
 		'wp_navigation',
 	);
 
-	if ( ! function_exists( 'get_current_screen' ) ) {
-		return false;
-	}
-
-	$screen = get_current_screen();
+	$screen = cre_get_current_screen();
 	if ( ! $screen ) {
 		return false;
 	}
@@ -205,7 +193,7 @@ function cre_is_design_post_type() {
 /**
  * Check multiple conditions (AND logic)
  *
- * @param array $conditions Array of condition callbacks
+ * @param array $conditions Array of condition callbacks.
  * @return bool True if all conditions pass, false otherwise
  */
 function cre_check_conditions( $conditions ) {
@@ -220,7 +208,7 @@ function cre_check_conditions( $conditions ) {
 /**
  * Check if any condition passes (OR logic)
  *
- * @param array $conditions Array of condition callbacks
+ * @param array $conditions Array of condition callbacks.
  * @return bool True if any condition passes, false otherwise
  */
 function cre_check_any_condition( $conditions ) {

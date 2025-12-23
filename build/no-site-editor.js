@@ -1,1 +1,0 @@
-console.log("✓ Client-side: Not in Site Editor");
