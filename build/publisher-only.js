@@ -1,0 +1,1 @@
+console.log("✓ Client-side: User has publish capabilities");
