@@ -6,7 +6,7 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady } = require('./fixtures');
+const { test, expect, waitForEditorReady, waitForPostStatus } = require('./fixtures');
 
 test.describe('PostStatusComponent - Client-Side Rendering', () => {
 	test('should render component for new draft post', async ({ page, admin, editor }) => {
@@ -55,8 +55,8 @@ test.describe('PostStatusComponent - Client-Side Rendering', () => {
 		// Publish the post
 		await editor.publishPost();
 
-		// Wait longer for the status change to propagate through stores
-		await page.waitForTimeout(3000);
+		// Wait for the status to change to 'publish' using condition-based polling
+		await waitForPostStatus(page, 'publish', 10000);
 
 		// Component should now be hidden
 		await expect(component).not.toBeVisible();

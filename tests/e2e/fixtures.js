@@ -8,6 +8,11 @@
 
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 
+// Configuration constants for store readiness polling
+const STORE_READY_MAX_ATTEMPTS = 50; // Maximum polling attempts
+const STORE_READY_POLL_INTERVAL = 200; // Milliseconds between polls
+const PLUGIN_MOUNT_DELAY = 1000; // Delay to ensure plugins have mounted
+
 /**
  * Wait for the WordPress Block Editor to be fully loaded and ready
  *
@@ -26,9 +31,8 @@ async function waitForEditorReady(editor, page) {
 	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 30000 });
 
 	// Wait for WordPress stores to be fully initialized and data to be available
-	await page.evaluate(() => {
+	await page.evaluate(({ maxAttempts, pollInterval }) => {
 		return new Promise((resolve) => {
-			const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
 			let attempts = 0;
 			
 			const checkStoresReady = () => {
@@ -43,7 +47,7 @@ async function waitForEditorReady(editor, page) {
 						const editorStore = select('core/editor');
 						if (!editorStore) {
 							if (attempts < maxAttempts) {
-								setTimeout(checkStoresReady, 200);
+								setTimeout(checkStoresReady, pollInterval);
 							} else {
 								resolve();
 							}
@@ -58,20 +62,20 @@ async function waitForEditorReady(editor, page) {
 						if (postType && postStatus) {
 							resolve();
 						} else if (attempts < maxAttempts) {
-							setTimeout(checkStoresReady, 200);
+							setTimeout(checkStoresReady, pollInterval);
 						} else {
 							resolve();
 						}
 					} catch (error) {
 						// If there's an error, keep trying
 						if (attempts < maxAttempts) {
-							setTimeout(checkStoresReady, 200);
+							setTimeout(checkStoresReady, pollInterval);
 						} else {
 							resolve();
 						}
 					}
 				} else if (attempts < maxAttempts) {
-					setTimeout(checkStoresReady, 200);
+					setTimeout(checkStoresReady, pollInterval);
 				} else {
 					resolve();
 				}
@@ -79,11 +83,58 @@ async function waitForEditorReady(editor, page) {
 			
 			checkStoresReady();
 		});
-	});
+	}, { maxAttempts: STORE_READY_MAX_ATTEMPTS, pollInterval: STORE_READY_POLL_INTERVAL });
 	
 	// Additional brief wait to ensure plugin components have mounted
 	// This is necessary as plugins register after stores are ready
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(PLUGIN_MOUNT_DELAY);
+}
+
+/**
+ * Wait for post status to change to expected value
+ *
+ * @param {Page} page - Playwright page object
+ * @param {string} expectedStatus - Expected post status (e.g., 'publish', 'draft')
+ * @param {number} timeout - Maximum time to wait in milliseconds (default: 10000)
+ */
+async function waitForPostStatus(page, expectedStatus, timeout = 10000) {
+	const maxAttempts = timeout / STORE_READY_POLL_INTERVAL;
+	
+	await page.evaluate(({ status, maxAttempts, pollInterval }) => {
+		return new Promise((resolve) => {
+			let attempts = 0;
+			
+			const checkStatus = () => {
+				attempts++;
+				
+				if (window.wp && window.wp.data) {
+					const { select } = window.wp.data;
+					
+					try {
+						const editorStore = select('core/editor');
+						if (editorStore) {
+							const currentStatus = editorStore.getCurrentPostAttribute('status');
+							
+							if (currentStatus === status) {
+								resolve();
+								return;
+							}
+						}
+					} catch (error) {
+						// Continue polling on error
+					}
+				}
+				
+				if (attempts < maxAttempts) {
+					setTimeout(checkStatus, pollInterval);
+				} else {
+					resolve();
+				}
+			};
+			
+			checkStatus();
+		});
+	}, { status: expectedStatus, maxAttempts, pollInterval: STORE_READY_POLL_INTERVAL });
 }
 
 /**
@@ -115,6 +166,7 @@ module.exports = {
 	test,
 	expect,
 	waitForEditorReady,
+	waitForPostStatus,
 	hasConsoleMessage,
 	setupConsoleCapture,
 };
