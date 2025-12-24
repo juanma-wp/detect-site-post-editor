@@ -20,9 +20,8 @@ test.describe('SpecificPostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the specific post type component is visible
-		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="specific-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the text content
@@ -41,9 +40,8 @@ test.describe('SpecificPostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the component is visible
-		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="specific-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the text content
@@ -76,9 +74,8 @@ test.describe('SpecificPostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Verify component is visible
-		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="specific-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Note: Switching post types in the editor would require UI interaction

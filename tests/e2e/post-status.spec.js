@@ -6,7 +6,7 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady, waitForPostStatus } = require('./fixtures');
+const { test, expect, waitForEditorReady } = require('./fixtures');
 
 test.describe('PostStatusComponent - Client-Side Rendering', () => {
 	test('should render component for new draft post', async ({ page, admin, editor }) => {
@@ -20,9 +20,8 @@ test.describe('PostStatusComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the post status component is visible
-		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="post-status-draft"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -47,16 +46,15 @@ test.describe('PostStatusComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Component should be visible initially
-		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="post-status-draft"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Publish the post
 		await editor.publishPost();
 
-		// Wait for the status to change to 'publish' using condition-based polling
-		await waitForPostStatus(page, 'publish', 10000);
+		// Wait a bit for the status change to propagate
+		await page.waitForTimeout(1000);
 
 		// Component should now be hidden
 		await expect(component).not.toBeVisible();

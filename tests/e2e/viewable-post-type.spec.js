@@ -20,9 +20,8 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the viewable post type component is visible
-		// Increased timeout for better reliability (core data store needs time to load) in slow CI
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -42,9 +41,8 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the component is visible
-		// Increased timeout for better reliability (core data store needs time to load) in slow CI
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -63,9 +61,8 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the component is visible
-		// Increased timeout for better reliability (core data store needs time to load) in slow CI
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content

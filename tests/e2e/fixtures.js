@@ -8,11 +8,6 @@
 
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 
-// Configuration constants for store readiness polling
-const STORE_READY_MAX_ATTEMPTS = 100; // Maximum polling attempts (increased for CI)
-const STORE_READY_POLL_INTERVAL = 300; // Milliseconds between polls (increased for CI stability)
-const PLUGIN_MOUNT_DELAY = 3000; // Delay to ensure plugins have mounted (increased for CI)
-
 /**
  * Wait for the WordPress Block Editor to be fully loaded and ready
  *
@@ -28,114 +23,10 @@ async function waitForEditorReady(editor, page) {
 	}
 
 	// Wait for the editor canvas to be visible
-	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 30000 });
+	await editor.canvas.locator('body').waitFor({ state: 'visible' });
 
-	// Wait for WordPress stores to be fully initialized and data to be available
-	await page.evaluate(({ maxAttempts, pollInterval }) => {
-		return new Promise((resolve) => {
-			let attempts = 0;
-			
-			const checkStoresReady = () => {
-				attempts++;
-				
-				// Check if wp.data is available and stores are accessible
-				if (window.wp && window.wp.data) {
-					const { select } = window.wp.data;
-					
-					try {
-						// Check if editor store has initialized with post data
-						const editorStore = select('core/editor');
-						if (!editorStore) {
-							if (attempts < maxAttempts) {
-								setTimeout(checkStoresReady, pollInterval);
-							} else {
-								resolve();
-							}
-							return;
-						}
-						
-						// Verify we can get basic post information
-						const postType = editorStore.getCurrentPostType();
-						const postStatus = editorStore.getCurrentPostAttribute('status');
-						
-						// If we have valid post data (not null/undefined), stores are ready
-						if (postType !== null && postType !== undefined && 
-						    postStatus !== null && postStatus !== undefined) {
-							resolve();
-						} else if (attempts < maxAttempts) {
-							setTimeout(checkStoresReady, pollInterval);
-						} else {
-							resolve();
-						}
-					} catch (error) {
-						// If there's an error, keep trying
-						if (attempts < maxAttempts) {
-							setTimeout(checkStoresReady, pollInterval);
-						} else {
-							resolve();
-						}
-					}
-				} else if (attempts < maxAttempts) {
-					setTimeout(checkStoresReady, pollInterval);
-				} else {
-					resolve();
-				}
-			};
-			
-			checkStoresReady();
-		});
-	}, { maxAttempts: STORE_READY_MAX_ATTEMPTS, pollInterval: STORE_READY_POLL_INTERVAL });
-	
-	// Additional brief wait to ensure plugin components have mounted
-	// This is necessary as plugins register after stores are ready
-	await page.waitForTimeout(PLUGIN_MOUNT_DELAY);
-}
-
-/**
- * Wait for post status to change to expected value
- *
- * @param {Page} page - Playwright page object
- * @param {string} expectedStatus - Expected post status (e.g., 'publish', 'draft')
- * @param {number} timeout - Maximum time to wait in milliseconds (default: 10000)
- */
-async function waitForPostStatus(page, expectedStatus, timeout = 10000) {
-	const maxAttempts = Math.max(1, Math.ceil(timeout / STORE_READY_POLL_INTERVAL));
-	
-	await page.evaluate(({ status, maxAttempts, pollInterval }) => {
-		return new Promise((resolve) => {
-			let attempts = 0;
-			
-			const checkStatus = () => {
-				attempts++;
-				
-				if (window.wp && window.wp.data) {
-					const { select } = window.wp.data;
-					
-					try {
-						const editorStore = select('core/editor');
-						if (editorStore) {
-							const currentStatus = editorStore.getCurrentPostAttribute('status');
-							
-							if (currentStatus === status) {
-								resolve();
-								return;
-							}
-						}
-					} catch (error) {
-						// Continue polling on error
-					}
-				}
-				
-				if (attempts < maxAttempts) {
-					setTimeout(checkStatus, pollInterval);
-				} else {
-					resolve();
-				}
-			};
-			
-			checkStatus();
-		});
-	}, { status: expectedStatus, maxAttempts, pollInterval: STORE_READY_POLL_INTERVAL });
+	// Wait a bit for plugins and scripts to initialize
+	await page.waitForTimeout(2000);
 }
 
 /**
@@ -167,7 +58,6 @@ module.exports = {
 	test,
 	expect,
 	waitForEditorReady,
-	waitForPostStatus,
 	hasConsoleMessage,
 	setupConsoleCapture,
 };

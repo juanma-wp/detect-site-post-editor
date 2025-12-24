@@ -9,7 +9,7 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady, waitForPostStatus } = require('./fixtures');
+const { test, expect, waitForEditorReady } = require('./fixtures');
 
 test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 	test('should render component when all conditions are met (new draft page)', async ({ page, admin, editor }) => {
@@ -23,9 +23,8 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Wait for the component to appear (the component should render automatically)
-		// Increased timeout to account for async permission checks and slow CI
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -70,16 +69,15 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Component should be visible initially
-		// Increased timeout to account for async permission checks and slow CI
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 45000 });
+		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page
 		await editor.publishPost();
 
-		// Wait for the status to change to 'publish' using condition-based polling
-		await waitForPostStatus(page, 'publish', 10000);
+		// Wait a bit for the status change to propagate
+		await page.waitForTimeout(1000);
 
 		// Component should now be hidden (status changed from draft to publish)
 		await expect(component).not.toBeVisible();
