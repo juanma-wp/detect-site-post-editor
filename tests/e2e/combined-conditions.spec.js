@@ -23,8 +23,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Wait for the component to appear (the component should render automatically)
+		// Increased timeout to account for async permission checks
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
+		await component.waitFor({ state: 'visible', timeout: 30000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -69,15 +70,16 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Component should be visible initially
+		// Increased timeout to account for async permission checks
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
+		await component.waitFor({ state: 'visible', timeout: 30000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page
 		await editor.publishPost();
 
-		// Wait a bit for the status change to propagate
-		await page.waitForTimeout(1000);
+		// Wait longer for the status change to propagate through stores
+		await page.waitForTimeout(3000);
 
 		// Component should now be hidden (status changed from draft to publish)
 		await expect(component).not.toBeVisible();

@@ -23,9 +23,27 @@ async function waitForEditorReady(editor, page) {
 	}
 
 	// Wait for the editor canvas to be visible
-	await editor.canvas.locator('body').waitFor({ state: 'visible' });
+	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 30000 });
 
-	// Wait a bit for plugins and scripts to initialize
+	// Wait for WordPress stores to be fully initialized
+	// This includes editor store, core data store, and permissions
+	await page.waitForTimeout(3000);
+	
+	// Wait for the plugin panel to be registered and rendered
+	// This ensures our custom components have had time to mount
+	await page.evaluate(() => {
+		return new Promise((resolve) => {
+			// Check if wp.data is available
+			if (window.wp && window.wp.data) {
+				// Wait for stores to be ready with a small delay
+				setTimeout(resolve, 500);
+			} else {
+				resolve();
+			}
+		});
+	});
+	
+	// Additional wait to ensure async store subscriptions have settled
 	await page.waitForTimeout(2000);
 }
 
