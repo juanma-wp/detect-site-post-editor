@@ -58,8 +58,8 @@ async function waitForEditorReady(editor, page) {
 						const postType = editorStore.getCurrentPostType();
 						const postStatus = editorStore.getCurrentPostAttribute('status');
 						
-						// If we have valid post data, stores are ready
-						if (postType && postStatus) {
+						// If we have valid post data (not null/undefined), stores are ready
+						if (postType != null && postStatus != null) {
 							resolve();
 						} else if (attempts < maxAttempts) {
 							setTimeout(checkStoresReady, pollInterval);
@@ -98,7 +98,7 @@ async function waitForEditorReady(editor, page) {
  * @param {number} timeout - Maximum time to wait in milliseconds (default: 10000)
  */
 async function waitForPostStatus(page, expectedStatus, timeout = 10000) {
-	const maxAttempts = timeout / STORE_READY_POLL_INTERVAL;
+	const maxAttempts = Math.ceil(timeout / STORE_READY_POLL_INTERVAL);
 	
 	await page.evaluate(({ status, maxAttempts, pollInterval }) => {
 		return new Promise((resolve) => {
