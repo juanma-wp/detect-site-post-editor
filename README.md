@@ -47,11 +47,11 @@ This repo shows you how to do it correctly, with **zero mocks** and **real tests
 
 #### Quick Setup (Recommended)
 
-\`\`\`bash
+```bash
 git clone https://github.com/yourusername/wp-block-editor-conditional-rendering.git
 cd wp-block-editor-conditional-rendering
 npm run setup
-\`\`\`
+```
 
 This single command will:
 - Install Node.js dependencies
@@ -62,37 +62,37 @@ This single command will:
 #### Manual Setup
 
 1. Clone the repository:
-   \`\`\`bash
+   ```bash
    git clone https://github.com/yourusername/wp-block-editor-conditional-rendering.git
    cd wp-block-editor-conditional-rendering
-   \`\`\`
+   ```
 
 2. Install Node.js dependencies:
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Install PHP dependencies:
-   \`\`\`bash
+   ```bash
    composer install
-   \`\`\`
+   ```
 
 4. Build the plugin:
-   \`\`\`bash
+   ```bash
    npm run build
-   \`\`\`
+   ```
 
 5. Start the WordPress environment:
-   \`\`\`bash
+   ```bash
    npm run wp-env:start
-   \`\`\`
+   ```
 
    This will start WordPress at http://localhost:8888
    - **Username:** admin
    - **Password:** password
 
 6. Run the tests:
-   \`\`\`bash
+   ```bash
    # Run E2E tests
    npm run test:e2e
 
@@ -101,11 +101,11 @@ This single command will:
 
    # Run all tests
    npm test
-   \`\`\`
+   ```
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 .
 ├── plugin/                          # WordPress plugin
 │   ├── plugin.php                   # Main plugin file
@@ -139,7 +139,7 @@ This single command will:
 ├── playwright.config.js            # Playwright configuration
 ├── phpunit.xml.dist                # PHPUnit configuration
 └── package.json                    # Dependencies and scripts
-\`\`\`
+```
 
 ## 🧪 Testing Strategy
 
@@ -154,7 +154,7 @@ This project uses **End-to-End (E2E) tests with Playwright** because:
 
 ### Running Tests
 
-\`\`\`bash
+```bash
 # Run all tests
 npm run test:e2e
 
@@ -163,7 +163,7 @@ npm run test:e2e:headed
 
 # Debug a specific test
 npm run test:e2e:debug
-\`\`\`
+```
 
 ### Test Coverage
 
@@ -171,18 +171,18 @@ Each test file validates specific conditional rendering patterns:
 
 | Test File | What It Verifies |
 |-----------|------------------|
-| \`specific-post-type.spec.js\` | Components render only for allowed post types |
-| \`viewable-post-type.spec.js\` | Components exclude Site Editor contexts |
-| \`post-status.spec.js\` | Components respect draft/publish status |
-| \`page-template.spec.js\` | Template-specific rendering works |
-| \`exclude-design-post-types.spec.js\` | Design post types are properly excluded |
-| \`combined-conditions.spec.js\` | Multiple conditions work together |
+| `specific-post-type.spec.js` | Components render only for allowed post types |
+| `viewable-post-type.spec.js` | Components exclude Site Editor contexts |
+| `post-status.spec.js` | Components respect draft/publish status |
+| `page-template.spec.js` | Template-specific rendering works |
+| `exclude-design-post-types.spec.js` | Design post types are properly excluded |
+| `combined-conditions.spec.js` | Multiple conditions work together |
 
 ## 💻 Development
 
 ### Start Development Mode
 
-\`\`\`bash
+```bash
 # Start WordPress environment
 npm run wp-env:start
 
@@ -191,7 +191,7 @@ npm run start
 
 # Visit http://localhost:8888/wp-admin
 # Login with admin/password
-\`\`\`
+```
 
 ### View the Examples
 
@@ -203,15 +203,15 @@ npm run start
 
 ### Stop the Environment
 
-\`\`\`bash
+```bash
 npm run wp-env:stop
-\`\`\`
+```
 
 ### Destroy the Environment
 
-\`\`\`bash
+```bash
 npm run wp-env:destroy
-\`\`\`
+```
 
 ## 📚 Code Examples
 
@@ -219,7 +219,7 @@ npm run wp-env:destroy
 
 #### Example 1: Detect Specific Post Types
 
-\`\`\`javascript
+```javascript
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
@@ -235,11 +235,11 @@ const MyComponent = () => {
 
     return <div>Only visible for pages and products!</div>;
 };
-\`\`\`
+```
 
 ### Example 2: Exclude Site Editor
 
-\`\`\`javascript
+```javascript
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as coreStore } from '@wordpress/core-data';
@@ -259,11 +259,11 @@ const MyComponent = () => {
 
     return <div>Only in Post Editor!</div>;
 };
-\`\`\`
+```
 
 ### Example 3: Combined Conditions
 
-\`\`\`javascript
+```javascript
 const MyComponent = () => {
     const { postTypeName, postStatus, canEdit } = useSelect((select) => {
         const postType = select(editorStore).getCurrentPostType();
@@ -281,13 +281,13 @@ const MyComponent = () => {
 
     return <div>Draft page editor only!</div>;
 };
-\`\`\`
+```
 
 ### Server-Side Examples (PHP)
 
 #### Example 1: Conditionally Enqueue for Specific Post Type
 
-\`\`\`php
+```php
 function my_plugin_enqueue_page_script() {
     // Only load for page post type
     if ( cre_is_post_type( 'page' ) ) {
@@ -300,11 +300,11 @@ function my_plugin_enqueue_page_script() {
     }
 }
 add_action( 'admin_enqueue_scripts', 'my_plugin_enqueue_page_script' );
-\`\`\`
+```
 
 #### Example 2: Exclude Site Editor
 
-\`\`\`php
+```php
 function my_plugin_enqueue_post_editor_only() {
     // Load everywhere except Site Editor
     if ( cre_is_block_editor() && ! cre_is_site_editor() ) {
@@ -317,11 +317,11 @@ function my_plugin_enqueue_post_editor_only() {
     }
 }
 add_action( 'enqueue_block_editor_assets', 'my_plugin_enqueue_post_editor_only' );
-\`\`\`
+```
 
 #### Example 3: Check User Capabilities
 
-\`\`\`php
+```php
 function my_plugin_enqueue_for_publishers() {
     // Only load for users who can publish posts
     if ( cre_user_can_publish_posts() && cre_is_block_editor() ) {
@@ -334,18 +334,9 @@ function my_plugin_enqueue_for_publishers() {
     }
 }
 add_action( 'admin_enqueue_scripts', 'my_plugin_enqueue_for_publishers' );
-\`\`\`
+```
 
 **📖 Full Server-Side Guide:** See [SERVER_SIDE_GUIDE.md](./SERVER_SIDE_GUIDE.md) for complete documentation with 14+ detection functions.
-
-## 🔍 Related Documentation
-
-- **[Main Article](./conditional-rendering-block-editor.md)** - "Conditionally Executing Code in Different WordPress Block Editor Contexts"
-- **[Server-Side Guide](./SERVER_SIDE_GUIDE.md)** - Complete PHP detection functions guide
-- **[Quick Reference](./QUICK_REFERENCE.md)** - Cheat sheet for common patterns
-- **[Architecture](./ARCHITECTURE.md)** - System design and data flow
-- **[Troubleshooting](./TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Project Summary](./PROJECT_SUMMARY.md)** - Complete overview
 
 ## 🤝 Contributing
 
