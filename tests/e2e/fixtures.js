@@ -59,7 +59,8 @@ async function waitForEditorReady(editor, page) {
 						const postStatus = editorStore.getCurrentPostAttribute('status');
 						
 						// If we have valid post data (not null/undefined), stores are ready
-						if (postType != null && postStatus != null) {
+						if (postType !== null && postType !== undefined && 
+						    postStatus !== null && postStatus !== undefined) {
 							resolve();
 						} else if (attempts < maxAttempts) {
 							setTimeout(checkStoresReady, pollInterval);
