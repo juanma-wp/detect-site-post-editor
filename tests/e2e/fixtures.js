@@ -25,26 +25,65 @@ async function waitForEditorReady(editor, page) {
 	// Wait for the editor canvas to be visible
 	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 30000 });
 
-	// Wait for WordPress stores to be fully initialized
-	// This includes editor store, core data store, and permissions
-	await page.waitForTimeout(3000);
-	
-	// Wait for the plugin panel to be registered and rendered
-	// This ensures our custom components have had time to mount
+	// Wait for WordPress stores to be fully initialized and data to be available
 	await page.evaluate(() => {
 		return new Promise((resolve) => {
-			// Check if wp.data is available
-			if (window.wp && window.wp.data) {
-				// Wait for stores to be ready with a small delay
-				setTimeout(resolve, 500);
-			} else {
-				resolve();
-			}
+			const maxAttempts = 50; // Max 10 seconds (50 * 200ms)
+			let attempts = 0;
+			
+			const checkStoresReady = () => {
+				attempts++;
+				
+				// Check if wp.data is available and stores are accessible
+				if (window.wp && window.wp.data) {
+					const { select } = window.wp.data;
+					
+					try {
+						// Check if editor store has initialized with post data
+						const editorStore = select('core/editor');
+						if (!editorStore) {
+							if (attempts < maxAttempts) {
+								setTimeout(checkStoresReady, 200);
+							} else {
+								resolve();
+							}
+							return;
+						}
+						
+						// Verify we can get basic post information
+						const postType = editorStore.getCurrentPostType();
+						const postStatus = editorStore.getCurrentPostAttribute('status');
+						
+						// If we have valid post data, stores are ready
+						if (postType && postStatus) {
+							resolve();
+						} else if (attempts < maxAttempts) {
+							setTimeout(checkStoresReady, 200);
+						} else {
+							resolve();
+						}
+					} catch (error) {
+						// If there's an error, keep trying
+						if (attempts < maxAttempts) {
+							setTimeout(checkStoresReady, 200);
+						} else {
+							resolve();
+						}
+					}
+				} else if (attempts < maxAttempts) {
+					setTimeout(checkStoresReady, 200);
+				} else {
+					resolve();
+				}
+			};
+			
+			checkStoresReady();
 		});
 	});
 	
-	// Additional wait to ensure async store subscriptions have settled
-	await page.waitForTimeout(2000);
+	// Additional brief wait to ensure plugin components have mounted
+	// This is necessary as plugins register after stores are ready
+	await page.waitForTimeout(1000);
 }
 
 /**
