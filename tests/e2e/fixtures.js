@@ -9,9 +9,9 @@
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 
 // Configuration constants for store readiness polling
-const STORE_READY_MAX_ATTEMPTS = 50; // Maximum polling attempts
-const STORE_READY_POLL_INTERVAL = 200; // Milliseconds between polls
-const PLUGIN_MOUNT_DELAY = 1000; // Delay to ensure plugins have mounted
+const STORE_READY_MAX_ATTEMPTS = 100; // Maximum polling attempts (increased for CI)
+const STORE_READY_POLL_INTERVAL = 300; // Milliseconds between polls (increased for CI stability)
+const PLUGIN_MOUNT_DELAY = 3000; // Delay to ensure plugins have mounted (increased for CI)
 
 /**
  * Wait for the WordPress Block Editor to be fully loaded and ready

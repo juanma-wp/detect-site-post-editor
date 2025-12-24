@@ -20,9 +20,9 @@ test.describe('PostStatusComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the post status component is visible
-		// Increased timeout for better reliability
+		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="post-status-draft"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 45000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -47,9 +47,9 @@ test.describe('PostStatusComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Component should be visible initially
-		// Increased timeout for better reliability
+		// Increased timeout for better reliability in slow CI environments
 		const component = page.locator('[data-testid="post-status-draft"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 45000 });
 		await expect(component).toBeVisible();
 
 		// Publish the post

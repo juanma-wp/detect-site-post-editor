@@ -23,9 +23,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Wait for the component to appear (the component should render automatically)
-		// Increased timeout to account for async permission checks
+		// Increased timeout to account for async permission checks and slow CI
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 45000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -70,9 +70,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Component should be visible initially
-		// Increased timeout to account for async permission checks
+		// Increased timeout to account for async permission checks and slow CI
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 45000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page

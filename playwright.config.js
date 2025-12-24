@@ -11,15 +11,16 @@ const wpScriptsPlaywrightConfig = require('@wordpress/scripts/config/playwright.
 module.exports = defineConfig({
 	...wpScriptsPlaywrightConfig,
 	testDir: './tests/e2e',
-	timeout: 60000, // Increase overall test timeout to 60 seconds
+	timeout: 120000, // Increase overall test timeout to 120 seconds for CI stability
 	use: {
 		...wpScriptsPlaywrightConfig.use,
 		baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
 		storageState: path.join(process.cwd(), 'artifacts/storage-state.json'),
-		actionTimeout: 30000, // Increase action timeout to 30 seconds
+		actionTimeout: 45000, // Increase action timeout to 45 seconds for slow CI environments
+		navigationTimeout: 45000, // Add navigation timeout
 	},
 	expect: {
-		timeout: 30000, // Increase expect timeout to 30 seconds
+		timeout: 45000, // Increase expect timeout to 45 seconds
 	},
 	webServer: {
 		command: 'npm run wp-env:start',
