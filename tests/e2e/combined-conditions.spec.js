@@ -19,6 +19,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		// Wait for editor to be ready (handles pattern modal automatically)
 		await waitForEditorReady(editor, page);
 
+		// Additional wait for React plugin registration and data store initialization
+		await page.waitForTimeout(300);
+
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
@@ -45,6 +48,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		// Wait for editor to be ready
 		await waitForEditorReady(editor, page);
 
+		// Additional wait for React plugin registration and data store initialization
+		await page.waitForTimeout(300);
+
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
@@ -64,6 +70,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 
 		// Add a title to enable publishing
 		await editor.canvas.locator('role=textbox[name="Add title"i]').fill('Test Page for Publishing');
+
+		// Additional wait for React plugin registration and data store initialization
+		await page.waitForTimeout(300);
 
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
