@@ -22,13 +22,13 @@ async function waitForEditorReady(editor, page) {
 		await page.waitForTimeout(500);
 	}
 
-	// Wait for the editor canvas to be visible
+	// Wait for the editor canvas to be visible (editor.canvas handles iframe automatically)
 	await editor.canvas.locator('body').waitFor({ state: 'visible' });
 
 	// Wait for the actual editor layout to be ready (critical for plugin registration)
 	await editor.canvas.locator('.block-editor-block-list__layout').waitFor({ state: 'visible' });
 
-	// Wait for plugins and scripts to initialize, then add stabilization time for React
+	// Wait for plugins and scripts to initialize
 	await page.waitForTimeout(2000);
 
 	// Additional stabilization wait for plugin registration (critical for CI environments)
