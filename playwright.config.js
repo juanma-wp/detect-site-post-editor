@@ -1,13 +1,6 @@
 const path = require('path');
 const { defineConfig } = require('@playwright/test');
 const wpScriptsPlaywrightConfig = require('@wordpress/scripts/config/playwright.config.js');
-const fs = require('fs');
-
-// Ensure artifacts directory exists for storageState
-const artifactsDir = path.join(process.cwd(), 'artifacts');
-if (!fs.existsSync(artifactsDir)) {
-	fs.mkdirSync(artifactsDir, { recursive: true });
-}
 
 /**
  * WordPress E2E Tests Configuration
@@ -21,7 +14,8 @@ module.exports = defineConfig({
 	use: {
 		...wpScriptsPlaywrightConfig.use,
 		baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
-		storageState: path.join(process.cwd(), 'artifacts/storage-state.json'),
+		// Let WordPress handle authentication via its default config
+		// Don't override storageState as it breaks WordPress's built-in auth
 	},
 	webServer: {
 		command: 'npm run wp-env:start',
