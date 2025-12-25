@@ -11,15 +11,11 @@ const wpScriptsPlaywrightConfig = require('@wordpress/scripts/config/playwright.
 module.exports = defineConfig({
 	...wpScriptsPlaywrightConfig,
 	testDir: './tests/e2e',
+	timeout: 100000, // 100 seconds per test
 	use: {
 		...wpScriptsPlaywrightConfig.use,
 		baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
 		storageState: path.join(process.cwd(), 'artifacts/storage-state.json'),
-	},
-	webServer: {
-		command: 'npm run wp-env:start',
-		port: 8888,
-		timeout: 120000,
-		reuseExistingServer: true,
+		actionTimeout: 30000, // 30 seconds for actions like clicks, fills, etc.
 	},
 });
