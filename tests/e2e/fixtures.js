@@ -22,11 +22,18 @@ async function waitForEditorReady(editor, page) {
 		await page.waitForTimeout(500);
 	}
 
-	// Wait for the editor canvas to be visible
-	await editor.canvas.locator('body').waitFor({ state: 'visible' });
+	// Wait for the editor iframe to be available
+	const editorIframe = page.frameLocator('iframe[name="editor-canvas"]');
+	await page.locator('iframe[name="editor-canvas"]').waitFor({ state: 'visible', timeout: 30000 });
 
-	// Wait a bit for plugins and scripts to initialize
-	await page.waitForTimeout(2000);
+	// Wait for the editor layout inside the iframe
+	await editorIframe.locator('.block-editor-block-list__layout').waitFor({ state: 'visible', timeout: 30000 });
+
+	// Wait for the editor canvas to be visible
+	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 30000 });
+
+	// Wait for plugins and scripts to initialize
+	await page.waitForTimeout(3000);
 }
 
 /**
