@@ -13,14 +13,21 @@ const { test, expect, waitForEditorReady } = require('./fixtures');
 
 test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 	test('should render component when all conditions are met (new draft page)', async ({ page, admin, editor }) => {
-		// Capture console logs for debugging
+		// Capture ALL console logs for debugging
 		const consoleLogs = [];
+		const errorLogs = [];
+
 		page.on('console', msg => {
 			const text = msg.text();
+			consoleLogs.push(`[${msg.type()}] ${text}`);
 			if (text.includes('[CombinedConditions]')) {
-				consoleLogs.push(text);
 				console.log('Browser console:', text);
 			}
+		});
+
+		page.on('pageerror', error => {
+			errorLogs.push(error.message);
+			console.log('Page error:', error.message);
 		});
 
 		// Create a new page (auto-draft)
@@ -43,7 +50,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		} catch (error) {
 			console.log('\n=== Console logs captured ===');
 			consoleLogs.forEach(log => console.log(log));
-			console.log('=== End console logs ===\n');
+			console.log('\n=== Page errors ===');
+			errorLogs.forEach(err => console.log(err));
+			console.log('=== End logs ===\n');
 			throw error;
 		}
 
