@@ -44,6 +44,26 @@ async function waitForEditorReady(editor, page) {
 
 	// Wait for plugins and scripts to initialize (longer for CI)
 	await page.waitForTimeout(3000);
+
+	// Wait for the WordPress data stores to be fully initialized
+	// This ensures canUser() and other REST API checks work properly
+	await page.waitForFunction(() => {
+		// Check that wp.data is available and core store is registered
+		if (!window.wp?.data?.select) return false;
+
+		try {
+			const coreStore = window.wp.data.select('core');
+			const editorStore = window.wp.data.select('core/editor');
+
+			// Verify stores are registered and have required methods
+			return coreStore?.canUser && editorStore?.getCurrentPostType;
+		} catch {
+			return false;
+		}
+	}, { timeout: 10000 });
+
+	// Extra stabilization for CI environment (REST API initialization)
+	await page.waitForTimeout(2000);
 }
 
 /**

@@ -54,15 +54,9 @@ const CombinedConditionsComponent = () => {
 	// Accept both 'draft' and 'auto-draft' statuses
 	const isDraftPage = ( postStatus === 'draft' || postStatus === 'auto-draft' );
 
-	// Check if running in E2E test environment (Playwright sets navigator.webdriver)
-	const isE2ETest = typeof navigator !== 'undefined' && navigator.webdriver === true;
-
 	// Only render when ALL conditions are explicitly met
 	// hasPermission can be: true (has permission), false (no permission), or undefined (still loading)
-	// In E2E tests, skip permission check if it's taking too long (CI workaround)
-	const permissionCheck = isE2ETest && hasPermission === undefined ? true : hasPermission === true;
-
-	if ( postTypeName !== 'page' || ! isDraftPage || ! permissionCheck ) {
+	if ( postTypeName !== 'page' || ! isDraftPage || hasPermission !== true ) {
 		return null;
 	}
 
