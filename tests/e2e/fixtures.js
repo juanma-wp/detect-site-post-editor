@@ -10,16 +10,24 @@ const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 
 /**
  * Wait for the WordPress Block Editor to be fully loaded and ready
+ * Handles the "Choose a pattern" modal that appears for new pages
  *
  * @param {Editor} editor - Editor utility object
  * @param {Page} page - Playwright page object
  */
 async function waitForEditorReady(editor, page) {
-	// Close the pattern selector modal if it appears (WordPress shows this for new pages)
-	const closeButton = page.locator('button[aria-label="Close"]').first();
-	if (await closeButton.isVisible().catch(() => false)) {
-		await closeButton.click();
-		await page.waitForTimeout(500);
+	// Close the "Choose a pattern" modal if it appears (WordPress shows this for new pages)
+	// Wait for modal to potentially appear, then close it with Escape
+	const modal = page.locator('.components-modal__frame');
+	try {
+		// Wait up to 3 seconds for the modal to appear
+		await modal.waitFor({ state: 'visible', timeout: 3000 });
+		// Modal appeared - close it with Escape
+		await page.keyboard.press('Escape');
+		// Wait for modal to close
+		await modal.waitFor({ state: 'hidden', timeout: 5000 });
+	} catch {
+		// Modal didn't appear within timeout - that's fine, continue
 	}
 
 	// Wait for the editor canvas to be visible (editor.canvas handles iframe automatically)
