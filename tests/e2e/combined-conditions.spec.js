@@ -13,6 +13,16 @@ const { test, expect, waitForEditorReady } = require('./fixtures');
 
 test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 	test('should render component when all conditions are met (new draft page)', async ({ page, admin, editor }) => {
+		// Capture console logs for debugging
+		const consoleLogs = [];
+		page.on('console', msg => {
+			const text = msg.text();
+			if (text.includes('[CombinedConditions]')) {
+				consoleLogs.push(text);
+				console.log('Browser console:', text);
+			}
+		});
+
 		// Create a new page (auto-draft)
 		await admin.createNewPost({ postType: 'page' });
 
@@ -28,7 +38,14 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 
 		// Wait for the component to appear
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 10000 });
+		try {
+			await component.waitFor({ state: 'visible', timeout: 10000 });
+		} catch (error) {
+			console.log('\n=== Console logs captured ===');
+			consoleLogs.forEach(log => console.log(log));
+			console.log('=== End console logs ===\n');
+			throw error;
+		}
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
