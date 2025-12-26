@@ -14,7 +14,8 @@ module.exports = defineConfig({
 	use: {
 		...wpScriptsPlaywrightConfig.use,
 		baseURL: process.env.WP_BASE_URL || 'http://localhost:8888',
-		storageState: path.join(process.cwd(), 'artifacts/storage-state.json'),
+		// Let WordPress handle authentication via its default config
+		// Don't override storageState as it breaks WordPress's built-in auth
 	},
 	webServer: {
 		command: 'npm run wp-env:start',
