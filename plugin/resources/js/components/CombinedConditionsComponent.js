@@ -24,6 +24,8 @@ const CombinedConditionsComponent = () => {
 
 	// Use useEffect to poll for permission resolution
 	useEffect( () => {
+		console.log( '[CombinedConditions] Component mounted', { postTypeName, postStatus } );
+
 		const checkPermission = () => {
 			const { select } = window.wp.data;
 			const coreStoreSelect = select( coreStore );
@@ -37,7 +39,16 @@ const CombinedConditionsComponent = () => {
 				? coreStoreSelect.canUser( 'create', { kind: 'postType', name: postType } )
 				: coreStoreSelect.canUser( 'update', { kind: 'postType', name: postType } );
 
+			console.log( '[CombinedConditions] Poll check:', {
+				postType,
+				status,
+				isNewPost,
+				permission,
+				currentHasPermission: hasPermission,
+			} );
+
 			if ( permission !== undefined && permission !== hasPermission ) {
+				console.log( '[CombinedConditions] Permission resolved! Setting to:', permission );
 				setHasPermission( permission );
 			}
 		};
@@ -48,11 +59,22 @@ const CombinedConditionsComponent = () => {
 		// Poll every 500ms until permission is resolved
 		const interval = setInterval( checkPermission, 500 );
 
-		return () => clearInterval( interval );
+		return () => {
+			console.log( '[CombinedConditions] Component unmounting' );
+			clearInterval( interval );
+		};
 	}, [ hasPermission, postTypeName, postStatus ] );
 
 	// Accept both 'draft' and 'auto-draft' statuses
 	const isDraftPage = ( postStatus === 'draft' || postStatus === 'auto-draft' );
+
+	console.log( '[CombinedConditions] Render check:', {
+		postTypeName,
+		postStatus,
+		isDraftPage,
+		hasPermission,
+		shouldRender: postTypeName === 'page' && isDraftPage && hasPermission === true,
+	} );
 
 	// Only render when ALL conditions are explicitly met
 	// hasPermission can be: true (has permission), false (no permission), or undefined (still loading)
