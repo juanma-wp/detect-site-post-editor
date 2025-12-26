@@ -1,6 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as coreStore } from '@wordpress/core-data';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Component demonstrating multiple combined conditions:
@@ -9,30 +10,53 @@ import { store as coreStore } from '@wordpress/core-data';
  * - User must have edit capabilities
  */
 const CombinedConditionsComponent = () => {
-	const { postTypeName, postStatus, canEdit } = useSelect( ( select ) => {
+	const [ hasPermission, setHasPermission ] = useState( undefined );
+
+	const { postTypeName, postStatus } = useSelect( ( select ) => {
 		const postType = select( editorStore ).getCurrentPostType();
 		const status = select( editorStore ).getCurrentPostAttribute( 'status' );
-
-		// For 'auto-draft' (unsaved), check 'create' permission
-		// For saved posts, check 'update' permission
-		const isNewPost = ! status || status === 'auto-draft';
-		const permission = isNewPost
-			? select( coreStore ).canUser( 'create', { kind: 'postType', name: postType } )
-			: select( coreStore ).canUser( 'update', { kind: 'postType', name: postType } );
 
 		return {
 			postTypeName: postType,
 			postStatus: status,
-			canEdit: permission,
 		};
-	} ); // Removed empty dependency array to allow re-renders when store data changes
+	} );
+
+	// Use useEffect to poll for permission resolution
+	useEffect( () => {
+		const checkPermission = () => {
+			const { select } = window.wp.data;
+			const coreStoreSelect = select( coreStore );
+			const editorStoreSelect = select( editorStore );
+
+			const status = editorStoreSelect.getCurrentPostAttribute( 'status' );
+			const postType = editorStoreSelect.getCurrentPostType();
+
+			const isNewPost = ! status || status === 'auto-draft';
+			const permission = isNewPost
+				? coreStoreSelect.canUser( 'create', { kind: 'postType', name: postType } )
+				: coreStoreSelect.canUser( 'update', { kind: 'postType', name: postType } );
+
+			if ( permission !== undefined && permission !== hasPermission ) {
+				setHasPermission( permission );
+			}
+		};
+
+		// Check immediately
+		checkPermission();
+
+		// Poll every 500ms until permission is resolved
+		const interval = setInterval( checkPermission, 500 );
+
+		return () => clearInterval( interval );
+	}, [ hasPermission, postTypeName, postStatus ] );
 
 	// Accept both 'draft' and 'auto-draft' statuses
 	const isDraftPage = ( postStatus === 'draft' || postStatus === 'auto-draft' );
 
 	// Only render when ALL conditions are explicitly met
-	// canEdit can be: true (has permission), false (no permission), or undefined (still loading)
-	if ( postTypeName !== 'page' || ! isDraftPage || canEdit !== true ) {
+	// hasPermission can be: true (has permission), false (no permission), or undefined (still loading)
+	if ( postTypeName !== 'page' || ! isDraftPage || hasPermission !== true ) {
 		return null;
 	}
 
