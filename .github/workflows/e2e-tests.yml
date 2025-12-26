@@ -43,6 +43,7 @@ jobs:
         run: xvfb-run npm run test:e2e -- --reporter=list
         env:
           CI: true
+          WP_BASE_URL: http://localhost:8888
 
       - name: Upload test results
         if: always()
