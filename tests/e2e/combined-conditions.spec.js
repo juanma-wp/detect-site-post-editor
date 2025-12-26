@@ -26,13 +26,13 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
 
-		// Wait for REST API permission check to resolve (canUser() is async)
-		// The component won't render until canEdit === true
-		await page.waitForTimeout(2000);
-
-		// Wait for the component to appear
+		// Wait for the component to appear (with extended timeout for CI)
+		// The component won't render until:
+		// 1. Plugin is registered and loaded
+		// 2. REST API canUser() resolves to true
+		// In CI, REST API calls can be slow, so we use a longer timeout
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 20000 });
+		await component.waitFor({ state: 'visible', timeout: 30000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -60,8 +60,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
 
-		// Wait for REST API permission check to resolve
-		await page.waitForTimeout(2000);
+		// Give time for component rendering logic to execute
+		// (even though component shouldn't render, we need to wait for the decision)
+		await page.waitForTimeout(3000);
 
 		// Component should NOT be visible (wrong post type)
 		const component = page.locator('[data-testid="combined-conditions"]');
@@ -87,12 +88,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
 
-		// Wait for REST API permission check to resolve (canUser() is async)
-		await page.waitForTimeout(2000);
-
-		// Component should be visible initially
+		// Wait for the component to appear (with extended timeout for CI)
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 20000 });
+		await component.waitFor({ state: 'visible', timeout: 30000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page
