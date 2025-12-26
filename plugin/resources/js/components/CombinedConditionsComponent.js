@@ -25,7 +25,7 @@ const CombinedConditionsComponent = () => {
 			postStatus: status,
 			canEdit: permission,
 		};
-	}, [] );
+	} ); // Removed empty dependency array to allow re-renders when store data changes
 
 	// Accept both 'draft' and 'auto-draft' statuses
 	const isDraftPage = ( postStatus === 'draft' || postStatus === 'auto-draft' );

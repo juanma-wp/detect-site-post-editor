@@ -26,13 +26,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
 
-		// Wait for the component to appear (with extended timeout for CI)
-		// The component won't render until:
-		// 1. Plugin is registered and loaded
-		// 2. REST API canUser() resolves to true
-		// In CI, REST API calls can be slow, so we use a longer timeout
+		// Wait for the component to appear
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 10000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -88,9 +84,9 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
 
-		// Wait for the component to appear (with extended timeout for CI)
+		// Wait for the component to appear
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 30000 });
+		await component.waitFor({ state: 'visible', timeout: 10000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page
