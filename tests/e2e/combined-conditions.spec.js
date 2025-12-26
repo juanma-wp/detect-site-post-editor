@@ -19,15 +19,20 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		// Wait for editor to be ready (handles pattern modal automatically)
 		await waitForEditorReady(editor, page);
 
-		// Additional wait for React plugin registration and data store initialization
-		await page.waitForTimeout(300);
-
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
-		// Wait for the component to appear (the component should render automatically)
+		// Wait for the plugin panel to appear first (confirms plugin is loaded)
+		const pluginPanel = page.locator('.conditional-rendering-examples');
+		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
+
+		// Wait for REST API permission check to resolve (canUser() is async)
+		// The component won't render until canEdit === true
+		await page.waitForTimeout(2000);
+
+		// Wait for the component to appear
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
+		await component.waitFor({ state: 'visible', timeout: 20000 });
 
 		// Component should be visible (all conditions met)
 		await expect(component).toBeVisible();
@@ -48,11 +53,15 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		// Wait for editor to be ready
 		await waitForEditorReady(editor, page);
 
-		// Additional wait for React plugin registration and data store initialization
-		await page.waitForTimeout(300);
-
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
+
+		// Wait for the plugin panel to appear first (confirms plugin is loaded)
+		const pluginPanel = page.locator('.conditional-rendering-examples');
+		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
+
+		// Wait for REST API permission check to resolve
+		await page.waitForTimeout(2000);
 
 		// Component should NOT be visible (wrong post type)
 		const component = page.locator('[data-testid="combined-conditions"]');
@@ -71,15 +80,19 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		// Add a title to enable publishing
 		await editor.canvas.locator('role=textbox[name="Add title"i]').fill('Test Page for Publishing');
 
-		// Additional wait for React plugin registration and data store initialization
-		await page.waitForTimeout(300);
-
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
+		// Wait for the plugin panel to appear first (confirms plugin is loaded)
+		const pluginPanel = page.locator('.conditional-rendering-examples');
+		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
+
+		// Wait for REST API permission check to resolve (canUser() is async)
+		await page.waitForTimeout(2000);
+
 		// Component should be visible initially
 		const component = page.locator('[data-testid="combined-conditions"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
+		await component.waitFor({ state: 'visible', timeout: 20000 });
 		await expect(component).toBeVisible();
 
 		// Publish the page

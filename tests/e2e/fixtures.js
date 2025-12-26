@@ -17,30 +17,33 @@ const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
  */
 async function waitForEditorReady(editor, page) {
 	// Close the "Choose a pattern" modal if it appears (WordPress shows this for new pages)
-	// Wait for modal to potentially appear, then close it with Escape
+	// This modal blocks interaction with the editor until dismissed
 	const modal = page.locator('.components-modal__frame');
 	try {
-		// Wait up to 3 seconds for the modal to appear
-		await modal.waitFor({ state: 'visible', timeout: 3000 });
-		// Modal appeared - close it with Escape
-		await page.keyboard.press('Escape');
-		// Wait for modal to close
+		// Wait up to 5 seconds for the modal to appear (CI can be slow)
+		await modal.waitFor({ state: 'visible', timeout: 5000 });
+		
+		// Modal appeared - close it by clicking the X button (more reliable than Escape in CI)
+		const closeButton = modal.locator('button[aria-label="Close"]');
+		await closeButton.click({ timeout: 5000 });
+		
+		// Wait for modal to fully close
 		await modal.waitFor({ state: 'hidden', timeout: 5000 });
+		
+		// Extra wait after modal closes for editor to stabilize
+		await page.waitForTimeout(500);
 	} catch {
 		// Modal didn't appear within timeout - that's fine, continue
 	}
 
 	// Wait for the editor canvas to be visible (editor.canvas handles iframe automatically)
-	await editor.canvas.locator('body').waitFor({ state: 'visible' });
+	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 10000 });
 
 	// Wait for the actual editor layout to be ready (critical for plugin registration)
-	await editor.canvas.locator('.block-editor-block-list__layout').waitFor({ state: 'visible' });
+	await editor.canvas.locator('.block-editor-block-list__layout').waitFor({ state: 'visible', timeout: 10000 });
 
-	// Wait for plugins and scripts to initialize
-	await page.waitForTimeout(2000);
-
-	// Additional stabilization wait for plugin registration (critical for CI environments)
-	await page.waitForTimeout(300);
+	// Wait for plugins and scripts to initialize (longer for CI)
+	await page.waitForTimeout(3000);
 }
 
 /**
