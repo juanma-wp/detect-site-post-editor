@@ -7,7 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 const UserCapabilityComponent = () => {
 	const { canPublish } = useSelect( ( select ) => {
 		return {
-			canPublish: select( coreStore ).canUser( 'create', 'posts' ),
+			canPublish: select( coreStore ).canUser( 'publish', 'posts' ),
 		};
 	}, [] );
 

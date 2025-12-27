@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { registerPlugin } from '@wordpress/plugins';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 
 /**
  * Styles
@@ -21,9 +21,16 @@ import UserCapabilityComponent from './components/UserCapabilityComponent';
 import ExcludeDesignPostTypesComponent from './components/ExcludeDesignPostTypesComponent';
 import CombinedConditionsComponent from './components/CombinedConditionsComponent';
 
+
 /**
  * Main plugin component that displays all examples
+ *
+ * Uses PluginDocumentSettingPanel from `@wordpress/editor` to add a panel
+ * in the document sidebar of  both post and site editors.
+ *
+ * @see https://make.wordpress.org/core/2024/06/18/editor-unified-extensibility-apis-in-6-6/
  */
+ 
 const ConditionalRenderingExamples = () => {
 	return (
 		<PluginDocumentSettingPanel
