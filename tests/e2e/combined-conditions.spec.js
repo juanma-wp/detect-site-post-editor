@@ -17,6 +17,10 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await waitForEditorReady(editor, page);
 		await editor.openDocumentSettingsSidebar();
 
+		const pluginPanel = page.locator('.conditional-rendering-examples');
+		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
+		await page.waitForTimeout(3000);
+
 		const component = page.locator('[data-testid="combined-conditions"]');
 		await expect(component).toBeVisible();
 		await expect(component.locator('h3')).toContainText('Combined Conditions');
@@ -43,6 +47,10 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 		await waitForEditorReady(editor, page);
 		await editor.canvas.locator('role=textbox[name="Add title"i]').fill('Test Page for Publishing');
 		await editor.openDocumentSettingsSidebar();
+
+		const pluginPanel = page.locator('.conditional-rendering-examples');
+		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
+		await page.waitForTimeout(3000);
 
 		const component = page.locator('[data-testid="combined-conditions"]');
 		await expect(component).toBeVisible();
