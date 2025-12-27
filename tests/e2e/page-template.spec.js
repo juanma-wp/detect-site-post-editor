@@ -40,5 +40,34 @@ test.describe('PageTemplateComponent - Client-Side Rendering', () => {
 		await expect(component).not.toBeVisible();
 	});
 
-	// Note: Tests using requestUtils API have been removed due to REST API setup timeouts
+	// Add tests for page with "full-width" template
+	test('should render component on page with "full-width" template', async ({ page, admin, editor, requestUtils }) => {
+		// Create a page with the full-width template already assigned
+		const newPage = await requestUtils.createPage({
+			title: 'Test Full Width Page',
+			status: 'draft',
+			template: 'full-width',
+		});
+
+		// Edit the page
+		await admin.editPost(newPage.id);
+
+		// Wait for editor to be ready
+		await waitForEditorReady(editor, page);
+
+		// Open settings sidebar
+		await editor.openDocumentSettingsSidebar();
+
+		// Check if the component is visible
+		const component = page.locator('[data-testid="page-template"]');
+		await expect(component).toBeVisible();
+
+		// Verify the content
+		await expect(component).toContainText('Current template: full-width');
+
+		// Verify the text content
+		await expect(component.locator('h3')).toContainText('Page Template');
+		await expect(component).toContainText("This component only renders when the 'full-width' template is active.");
+	});
+
 });
