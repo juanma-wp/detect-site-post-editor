@@ -16,54 +16,42 @@ const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
  * @param {Page} page - Playwright page object
  */
 async function waitForEditorReady(editor, page) {
-	// Close the "Choose a pattern" modal if it appears (WordPress shows this for new pages)
-	// This modal blocks interaction with the editor until dismissed
+	// Close the "Choose a pattern" modal if it appears
 	const modal = page.locator('.components-modal__frame');
 	try {
-		// Wait up to 5 seconds for the modal to appear (CI can be slow)
 		await modal.waitFor({ state: 'visible', timeout: 5000 });
-		
-		// Modal appeared - close it by clicking the X button (more reliable than Escape in CI)
-		const closeButton = modal.locator('button[aria-label="Close"]');
-		await closeButton.click({ timeout: 5000 });
-		
-		// Wait for modal to fully close
-		await modal.waitFor({ state: 'hidden', timeout: 5000 });
-		
-		// Extra wait after modal closes for editor to stabilize
-		await page.waitForTimeout(500);
+		await modal.locator('button[aria-label="Close"]').click();
+		await modal.waitFor({ state: 'hidden' });
 	} catch {
-		// Modal didn't appear within timeout - that's fine, continue
+		// Modal didn't appear - continue
 	}
 
-	// Wait for the editor canvas to be visible (editor.canvas handles iframe automatically)
-	await editor.canvas.locator('body').waitFor({ state: 'visible', timeout: 10000 });
-
-	// Wait for the actual editor layout to be ready (critical for plugin registration)
+	// Wait for editor layout to be ready
 	await editor.canvas.locator('.block-editor-block-list__layout').waitFor({ state: 'visible', timeout: 10000 });
-
-	// Wait for plugins and scripts to initialize (longer for CI)
 	await page.waitForTimeout(3000);
 
-	// Wait for the WordPress data stores to be fully initialized
-	// This ensures canUser() and other REST API checks work properly
+	// Wait for WordPress data stores to initialize
 	await page.waitForFunction(() => {
-		// Check that wp.data is available and core store is registered
 		if (!window.wp?.data?.select) return false;
-
 		try {
-			const coreStore = window.wp.data.select('core');
-			const editorStore = window.wp.data.select('core/editor');
-
-			// Verify stores are registered and have required methods
-			return coreStore?.canUser && editorStore?.getCurrentPostType;
+			const core = window.wp.data.select('core');
+			const editor = window.wp.data.select('core/editor');
+			return core?.canUser && editor?.getCurrentPostType;
 		} catch {
 			return false;
 		}
 	}, { timeout: 10000 });
 
-	// Extra stabilization for CI environment (REST API initialization)
-	await page.waitForTimeout(2000);
+	// Prefetch permissions to prevent timing issues in CI
+	await page.evaluate(async () => {
+		const { resolveSelect } = window.wp.data;
+		await Promise.all([
+			resolveSelect('core').canUser('create', { kind: 'postType', name: 'page' }),
+			resolveSelect('core').canUser('update', { kind: 'postType', name: 'page' })
+		]).catch(() => {});
+	});
+
+	await page.waitForTimeout(1000);
 }
 
 /**

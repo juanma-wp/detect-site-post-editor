@@ -37,17 +37,7 @@ const CombinedConditionsComponent = () => {
 				? coreStoreSelect.canUser( 'create', { kind: 'postType', name: postType } )
 				: coreStoreSelect.canUser( 'update', { kind: 'postType', name: postType } );
 
-			// Debug logging
-			console.log('[CombinedConditions] Permission check:', {
-				postType,
-				status,
-				isNewPost,
-				permission,
-				hasPermission
-			});
-
 			if ( permission !== undefined && permission !== hasPermission ) {
-				console.log('[CombinedConditions] Setting permission to:', permission);
 				setHasPermission( permission );
 			}
 		};
@@ -67,14 +57,6 @@ const CombinedConditionsComponent = () => {
 	// Only render when ALL conditions are explicitly met
 	// hasPermission can be: true (has permission), false (no permission), or undefined (still loading)
 	const shouldRender = postTypeName === 'page' && isDraftPage && hasPermission === true;
-
-	console.log('[CombinedConditions] Render decision:', {
-		postTypeName,
-		postStatus,
-		isDraftPage,
-		hasPermission,
-		shouldRender
-	});
 
 	if ( ! shouldRender ) {
 		return null;
