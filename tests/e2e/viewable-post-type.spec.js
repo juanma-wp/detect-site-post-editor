@@ -22,7 +22,6 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 
 		// Check if the viewable post type component is visible
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -43,7 +42,6 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 
 		// Check if the component is visible
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -52,7 +50,7 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 	});
 
 	test('should render component for product (viewable custom type)', async ({ page, admin, editor }) => {
-		// Create a new product
+		// Create a new product (registered with 'public' => true in plugin.php, making it viewable)
 		await admin.createNewPost({ postType: 'product' });
 
 		// Wait for editor to be ready
@@ -63,7 +61,6 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 
 		// Check if the component is visible
 		const component = page.locator('[data-testid="viewable-post-type"]');
-		await component.waitFor({ state: 'visible', timeout: 15000 });
 		await expect(component).toBeVisible();
 
 		// Verify the content
