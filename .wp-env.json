@@ -1,6 +1,6 @@
 {
   "core": "WordPress/WordPress#6.7",
-  "plugins": [],
+  "plugins": ["./plugin"],
   "themes": [
     "WordPress/twentytwentyfour"
   ],
@@ -15,17 +15,10 @@
   "port": 8888,
   "env": {
     "development": {
-      "port": 8889,
-      "plugins": ["./plugin"]
+      "port": 8889
     },
     "tests": {
-      "port": 8890,
-      "mappings": {
-        "wp-content/plugins/detect-site-post-editor": "./plugin",
-        "wp-content/plugins/detect-site-post-editor/tests": "./tests",
-        "wp-content/plugins/detect-site-post-editor/phpunit.xml.dist": "./phpunit.xml.dist",
-        "wp-content/plugins/detect-site-post-editor/vendor": "./vendor"
-      }
+      "port": 8890
     }
   }
 }
