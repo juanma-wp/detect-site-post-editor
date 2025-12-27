@@ -9,7 +9,8 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady } = require('./fixtures');
+const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+const { waitForEditorReady } = require('./utils');
 
 test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 	test('should render component when all conditions are met (new draft page)', async ({ page, admin, editor }) => {

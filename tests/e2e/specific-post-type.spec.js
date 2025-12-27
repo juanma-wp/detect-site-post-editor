@@ -6,7 +6,8 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady } = require('./fixtures');
+const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+const { waitForEditorReady } = require('./utils');
 
 test.describe('SpecificPostTypeComponent - Client-Side Rendering', () => {
 	test('should render component for page post type', async ({ page, admin, editor }) => {

@@ -1,12 +1,10 @@
 /**
- * E2E Test Fixtures and Utilities
+ * E2E Test Utilities
  *
- * Provides common setup and helper functions for E2E tests.
+ * Provides common helper functions for E2E tests.
  *
  * @package ConditionalRenderingExamples
  */
-
-const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 
 /**
  * Wait for the WordPress Block Editor to be fully loaded and ready
@@ -80,8 +78,6 @@ function setupConsoleCapture(page) {
 }
 
 module.exports = {
-	test,
-	expect,
 	waitForEditorReady,
 	hasConsoleMessage,
 	setupConsoleCapture,

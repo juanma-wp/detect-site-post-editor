@@ -6,7 +6,8 @@
  * @package ConditionalRenderingExamples
  */
 
-const { test, expect, waitForEditorReady } = require('./fixtures');
+const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+const { waitForEditorReady } = require('./utils');
 
 test.describe('PageTemplateComponent - Client-Side Rendering', () => {
 	test('should NOT render component on page with default template', async ({ page, admin, editor }) => {
