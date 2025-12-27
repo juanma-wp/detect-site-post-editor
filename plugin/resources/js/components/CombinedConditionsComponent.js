@@ -32,6 +32,7 @@ const CombinedConditionsComponent = () => {
 	const isDraftPage = ( postStatus === 'draft' || postStatus === 'auto-draft' );
 
 	// Only render when ALL conditions are explicitly met
+	// Note: canEdit can be undefined while permissions are loading, so we check for explicit true
 	const shouldRender = postTypeName === 'page' && isDraftPage && canEdit === true;
 
 	if ( ! shouldRender ) {

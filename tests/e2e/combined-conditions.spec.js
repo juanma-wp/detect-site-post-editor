@@ -19,7 +19,16 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
-		await page.waitForTimeout(3000);
+
+		// Expand the panel if collapsed
+		const panelButton = pluginPanel.locator('button').first();
+		const isExpanded = await panelButton.getAttribute('aria-expanded');
+		if (isExpanded === 'false') {
+			await panelButton.click();
+			await page.waitForTimeout(1000);
+		}
+
+		await page.waitForTimeout(2000);
 
 		const component = page.locator('[data-testid="combined-conditions"]');
 		await expect(component).toBeVisible();
@@ -36,7 +45,16 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
-		await page.waitForTimeout(3000);
+
+		// Expand the panel if collapsed
+		const panelButton = pluginPanel.locator('button').first();
+		const isExpanded = await panelButton.getAttribute('aria-expanded');
+		if (isExpanded === 'false') {
+			await panelButton.click();
+			await page.waitForTimeout(1000);
+		}
+
+		await page.waitForTimeout(1000);
 
 		const component = page.locator('[data-testid="combined-conditions"]');
 		await expect(component).not.toBeVisible();
@@ -50,7 +68,16 @@ test.describe('CombinedConditionsComponent - Client-Side Rendering', () => {
 
 		const pluginPanel = page.locator('.conditional-rendering-examples');
 		await pluginPanel.waitFor({ state: 'visible', timeout: 20000 });
-		await page.waitForTimeout(3000);
+
+		// Expand the panel if collapsed
+		const panelButton = pluginPanel.locator('button').first();
+		const isExpanded = await panelButton.getAttribute('aria-expanded');
+		if (isExpanded === 'false') {
+			await panelButton.click();
+			await page.waitForTimeout(1000);
+		}
+
+		await page.waitForTimeout(2000);
 
 		const component = page.locator('[data-testid="combined-conditions"]');
 		await expect(component).toBeVisible();

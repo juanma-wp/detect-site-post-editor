@@ -1,9 +1,10 @@
 // Set WP_BASE_URL environment variable BEFORE loading wp-scripts config
 // This ensures globalSetup creates storage state for the correct URL
-process.env.WP_BASE_URL = process.env.WP_BASE_URL || 'http://localhost:8888';
+process.env.WP_BASE_URL = process.env.WP_BASE_URL || "http://localhost:8890";
 
-const { defineConfig } = require('@playwright/test');
-const wpScriptsPlaywrightConfig = require('@wordpress/scripts/config/playwright.config.js');
+const path = require("path");
+const { defineConfig } = require("@playwright/test");
+const wpScriptsPlaywrightConfig = require("@wordpress/scripts/config/playwright.config.js");
 
 /**
  * WordPress E2E Tests Configuration
@@ -16,16 +17,12 @@ const wpScriptsPlaywrightConfig = require('@wordpress/scripts/config/playwright.
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
-	...wpScriptsPlaywrightConfig,
-	testDir: './tests/e2e',
-	use: {
-		...wpScriptsPlaywrightConfig.use,
-		// baseURL already set via WP_BASE_URL environment variable above
-	},
-	webServer: {
-		command: 'npm run wp-env:start',
-		port: 8888,
-		timeout: 120000,
-		reuseExistingServer: true,
-	},
+  ...wpScriptsPlaywrightConfig,
+  testDir: "./tests/e2e",
+  use: {
+    ...wpScriptsPlaywrightConfig.use,
+    baseURL: process.env.WP_BASE_URL,
+    storageState: path.join(process.cwd(), "artifacts/storage-state.json"),
+    // baseURL already set via WP_BASE_URL environment variable above
+  },
 });

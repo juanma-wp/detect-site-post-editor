@@ -14,10 +14,11 @@
     "lint:js": "wp-scripts lint-js",
     "test:integration": "wp-env run tests-cli --env-cwd='wp-content/plugins/detect-site-post-editor' vendor/bin/phpunit --configuration=phpunit.xml.dist --testdox",
     "test:unit": "wp-env run tests-cli --env-cwd='wp-content/plugins/detect-site-post-editor' vendor/bin/phpunit --testdox --colors --configuration phpunit.unit.xml",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "playwright test --debug",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e": "wp-scripts test-playwright",
+    "test:e2e:help": "wp-scripts test-playwright --help",
+    "test:e2e:debug": "wp-scripts test-playwright --debug",
+    "test:e2e:ui": "wp-scripts test-playwright --ui",
+    "test:e2e:headed": "wp-scripts test-playwright --headed",
     "test": "npm run test:php && npm run test:e2e",
     "setup": "npm install && composer install && npx playwright install && npm run build && npm run wp-env:start",
     "postinstall": "[ -f composer.json ] && composer install || true",
@@ -33,19 +34,6 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.48.0",
-    "@wordpress/e2e-test-utils-playwright": "^1.10.0",
-    "@wordpress/env": "^10.12.0",
     "@wordpress/scripts": "^30.7.0"
-  },
-  "dependencies": {
-    "@wordpress/block-editor": "^14.8.0",
-    "@wordpress/components": "^28.11.0",
-    "@wordpress/core-data": "^7.8.0",
-    "@wordpress/data": "^10.8.0",
-    "@wordpress/edit-post": "^8.8.0",
-    "@wordpress/editor": "^14.8.0",
-    "@wordpress/element": "^6.8.0",
-    "@wordpress/plugins": "^7.8.0"
   }
 }
