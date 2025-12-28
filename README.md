@@ -1,6 +1,7 @@
 # WordPress Block Editor Conditional Rendering - Demo & Tests
 
-[![Tests](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/tests.yml/badge.svg)](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/tests.yml)
+[![E2E Tests](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/e2e-tests.yml)
+[![Integration Tests](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/juanma-wp/detect-site-post-editor/actions/workflows/integration-tests.yml)
 
 This repository demonstrates conditional code execution patterns in the WordPress Block Editor, with complete E2E tests validating each approach. All examples are executable, testable, and based on real-world patterns from WordPress core.
 
