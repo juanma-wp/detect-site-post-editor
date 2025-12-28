@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Load server-side detection functions.
+// Include server-side detection functions.
 require_once plugin_dir_path( __FILE__ ) . 'includes/server-side-detection.php';
 
 /**
@@ -45,8 +45,10 @@ add_action( 'enqueue_block_editor_assets', 'conditional_rendering_examples_enque
  * Conditionally enqueue assets based on server-side detection
  */
 function conditional_rendering_examples_enqueue_conditional_assets() {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : false;
+
 	// Example 1: Only load on block editor screens.
-	if ( cre_is_block_editor() ) {
+	if ( $screen && $screen->is_block_editor() ) {
 		wp_enqueue_script(
 			'cre-editor-only',
 			plugins_url( 'build/editor-only.js', __FILE__ ),
@@ -61,7 +63,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 	}
 
 	// Example 2: Only load for specific post types.
-	if ( cre_is_post_type( 'page' ) ) {
+	if ( $screen && $screen->post_type === 'page' ) {
 		wp_enqueue_script(
 			'cre-page-only',
 			plugins_url( 'build/page-only.js', __FILE__ ),
@@ -76,7 +78,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 	}
 
 	// Example 3: Only load for users with specific capabilities.
-	if ( cre_user_can_publish_posts() ) {
+	if ( current_user_can( 'publish_posts' ) ) {
 		wp_enqueue_script(
 			'cre-publisher-only',
 			plugins_url( 'build/publisher-only.js', __FILE__ ),
@@ -91,7 +93,8 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 	}
 
 	// Example 4: Exclude Site Editor.
-	if ( ! cre_is_site_editor() ) {
+	global $pagenow;
+	if ( 'site-editor.php' !== $pagenow ) {
 		wp_enqueue_script(
 			'cre-no-site-editor',
 			plugins_url( 'build/no-site-editor.js', __FILE__ ),
@@ -106,7 +109,7 @@ function conditional_rendering_examples_enqueue_conditional_assets() {
 	}
 
 	// Example 5: Only on post edit screens.
-	if ( cre_is_post_edit_screen() ) {
+	if ( $screen && $screen->base === 'post' ) {
 		wp_enqueue_script(
 			'cre-post-edit-only',
 			plugins_url( 'build/post-edit-only.js', __FILE__ ),

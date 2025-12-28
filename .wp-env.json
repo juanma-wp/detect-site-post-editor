@@ -1,6 +1,11 @@
 {
   "core": "WordPress/WordPress#6.7",
   "plugins": ["./plugin"],
+  "mappings": {
+    "wp-content/plugins/plugin/tests": "./tests",
+    "wp-content/plugins/plugin/phpunit.xml.dist": "./phpunit.xml.dist",
+    "wp-content/plugins/plugin/vendor": "./vendor"
+  },
   "themes": [
     "WordPress/twentytwentyfour"
   ],
