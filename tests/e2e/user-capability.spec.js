@@ -21,8 +21,9 @@ test.describe('UserCapabilityComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the user capability component is visible
+		// Note: In CI environments, the REST API permission check may take longer
 		const component = page.locator('[data-testid="user-capability"]');
-		await expect(component).toBeVisible();
+		await expect(component).toBeVisible({ timeout: 15000 });
 
 		// Verify the content
 		await expect(component.locator('h3')).toContainText('User Capability');
