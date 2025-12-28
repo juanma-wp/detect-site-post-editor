@@ -1,7 +1,8 @@
 /**
- * E2E Tests: ExcludePostTypesComponent
+ * E2E Tests: ExcludeDesignPostTypesComponent
  *
- * Tests the React component that excludes 'attachment' and 'wp_block' post types.
+ * Tests the React component that excludes design post types (Site Editor contexts).
+ * Excluded types: wp_template, wp_template_part, wp_block, wp_navigation
  *
  * @package ConditionalRenderingExamples
  */
@@ -9,7 +10,7 @@
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 const { waitForEditorReady } = require('./utils');
 
-test.describe('ExcludePostTypesComponent - Client-Side Rendering', () => {
+test.describe('ExcludeDesignPostTypesComponent - Client-Side Rendering', () => {
 	test('should render component for post (not excluded)', async ({ page, admin, editor }) => {
 		// Create a new post
 		await admin.createNewPost({ postType: 'post' });
@@ -20,14 +21,14 @@ test.describe('ExcludePostTypesComponent - Client-Side Rendering', () => {
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
-		// Check if the exclude post types component is visible
-		const component = page.locator('[data-testid="exclude-post-types"]');
+		// Check if the exclude design post types component is visible
+		const component = page.locator('[data-testid="exclude-design-post-types"]');
 		await expect(component).toBeVisible();
 
 		// Verify the content
-		await expect(component.locator('h3')).toContainText('Exclude Post Types');
+		await expect(component.locator('h3')).toContainText('Exclude Design Post Types');
 		await expect(component).toContainText('Current post type: post');
-		await expect(component).toContainText("excludes 'attachment' and 'wp_block' post types");
+		await expect(component).toContainText('Excluded types: wp_template, wp_template_part, wp_block, wp_navigation');
 	});
 
 	test('should render component for page (not excluded)', async ({ page, admin, editor }) => {
@@ -41,7 +42,7 @@ test.describe('ExcludePostTypesComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the component is visible
-		const component = page.locator('[data-testid="exclude-post-types"]');
+		const component = page.locator('[data-testid="exclude-design-post-types"]');
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -59,7 +60,7 @@ test.describe('ExcludePostTypesComponent - Client-Side Rendering', () => {
 		await editor.openDocumentSettingsSidebar();
 
 		// Check if the component is visible
-		const component = page.locator('[data-testid="exclude-post-types"]');
+		const component = page.locator('[data-testid="exclude-design-post-types"]');
 		await expect(component).toBeVisible();
 
 		// Verify the content
@@ -90,19 +91,23 @@ test.describe('ExcludePostTypesComponent - Client-Side Rendering', () => {
     // Open settings sidebar
     await editor.openDocumentSettingsSidebar();
 
-    const component = page.locator('[data-testid="exclude-post-types"]');
+    // The component should NOT be visible for wp_block post type
+    const component = page.locator('[data-testid="exclude-design-post-types"]');
     await expect(component).not.toBeVisible();
   });
 
-	test('should NOT render in Site Editor', async ({ page, admin }) => {
-		// Navigate to Site Editor
-		await admin.visitSiteEditor();
+	test('should NOT render in Site Editor', async ({ page, admin, editor }) => {
+    // Navigate to Site Editor with a template in edit mode
+    await admin.visitSiteEditor({
+      postType: 'wp_template',
+      canvas: 'edit',
+    });
 
-		// Wait for Site Editor to load
-		await page.waitForTimeout(5000);
+    // Open settings sidebar
+    await editor.openDocumentSettingsSidebar();
 
-		// The component should NOT be visible in Site Editor
-		const component = page.locator('[data-testid="exclude-post-types"]');
-		await expect(component).not.toBeVisible();
-	});
+    // The component should NOT be visible in Site Editor
+    const component = page.locator('[data-testid="exclude-design-post-types"]');
+    await expect(component).not.toBeVisible();
+  });
 });
