@@ -20,9 +20,6 @@ test.describe('UserCapabilityComponent - Client-Side Rendering', () => {
 		// Open settings sidebar
 		await editor.openDocumentSettingsSidebar();
 
-		// Wait for the sidebar panel to be visible
-		await page.locator('.components-panel').first().waitFor({ state: 'visible', timeout: 10000 });
-
 		// Check if the user capability component is visible
 		const component = page.locator('[data-testid="user-capability"]');
 		await expect(component).toBeVisible();

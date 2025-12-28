@@ -1,0 +1,41 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Start WordPress environment
+        run: npm run wp-env:start
+
+      - name: Wait for WordPress to be ready
+        run: |
+          echo "Waiting for WordPress test environment to be ready..."
+          timeout 120 bash -c 'until curl -s http://localhost:8890 > /dev/null; do sleep 2; done'
+          echo "WordPress is ready!"
+
+      - name: Run integration tests
+        working-directory: plugin
+        run: npm run test:integration
