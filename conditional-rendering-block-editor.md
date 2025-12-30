@@ -59,9 +59,12 @@ Anyway, this is **indirect detection** — we're inferring the editor context ba
 
 Restrict code execution to specific post types using an allow list. Use the [`getCurrentPostType()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-editor/#getcurrentposttype) selector from the editor store.
 
-**Example from this project** ([SpecificPostTypeComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/SpecificPostTypeComponent.js)):
+Example ([SpecificPostTypeComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/SpecificPostTypeComponent.js)):
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+
 const SpecificPostTypeComponent = () => {
     const { postTypeName } = useSelect( ( select ) => {
         return {
@@ -88,9 +91,12 @@ const SpecificPostTypeComponent = () => {
 
 Prevent code from running on specific post types using a blocklist.
 
-**Example from this project** ([ExcludePostTypesComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/ExcludePostTypesComponent.js)):
+Example ([ExcludePostTypesComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/ExcludePostTypesComponent.js)):
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+
 const ExcludePostTypesComponent = () => {
     const { postTypeName } = useSelect( ( select ) => {
         return {
@@ -113,7 +119,7 @@ const ExcludePostTypesComponent = () => {
 };
 ```
 
-**Real-world example**: WordPress core uses this pattern in the Query block ([packages/block-library/src/query/utils.js:106](https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/query/utils.js#L106)) to exclude the `attachment` post type from the Query Loop:
+WordPress core uses this pattern in the Query block ([packages/block-library/src/query/utils.js:106](https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/query/utils.js#L106)) to exclude the `attachment` post type from the Query Loop:
 
 ```javascript
 const excludedPostTypes = [ 'attachment' ];
@@ -128,6 +134,10 @@ const filteredPostTypes = getPostTypes( { per_page: -1 } )?.filter(
 Execute code only for public/viewable post types:
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { store as coreStore } from '@wordpress/core-data';
+
 const { isViewable } = useSelect( ( select ) => {
     const postType = select( editorStore ).getCurrentPostType();
     const postTypeObject = select( coreStore ).getPostType( postType );
@@ -147,10 +157,12 @@ The property `isViewable` indicates whether the post type has a publicly accessi
 
 When filtering code this is a key property because you typically want editor customizations to run only for content that end users will actually see, preventing your code from executing on internal WordPress data structures or administrative screens where it wouldn't make sense.
 
-**Real-world examples** from Gutenberg core:
+Gutenberg core uses this approach in several places:
 
 1. **Post URL Check** ([packages/editor/src/components/post-url/check.js:24](https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/src/components/post-url/check.js#L24)): Prevents post URL controls from appearing for non-viewable post types:
    ```javascript
+   import { store as coreStore } from '@wordpress/core-data';
+
    const postType = select( coreStore ).getPostType( postTypeSlug );
    if ( ! postType?.viewable ) {
        return false;
@@ -169,69 +181,119 @@ When filtering code this is a key property because you typically want editor cus
 
 ### Detecting Post Status
 
-Run code based on the current post's publication status using [`getCurrentPostAttribute()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-editor/#getcurrentpostattribute):
+Run code based on the current post's publication status using [`getCurrentPostAttribute()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-editor/#getcurrentpostattribute).
+
+Example ([PostStatusComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/PostStatusComponent.js)):
 
 ```javascript
-const { postStatus } = useSelect( ( select ) => {
-    return {
-        postStatus: select( editorStore ).getCurrentPostAttribute( 'status' ),
-    };
-}, [] );
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
-// Only run for draft posts
-if ( postStatus !== 'draft' ) {
-    return null;
-}
+const PostStatusComponent = () => {
+    const { postStatus } = useSelect( ( select ) => {
+        return {
+            postStatus: select( editorStore ).getCurrentPostAttribute( 'status' ),
+        };
+    }, [] );
 
-// Code here only runs for draft posts
+    // Only show for draft posts (including auto-draft for new unsaved posts)
+    if ( postStatus !== 'draft' && postStatus !== 'auto-draft' ) {
+        return null;
+    }
+
+    return (
+        <div className="example-section" data-testid="post-status-draft">
+            <h3>✓ Post Status (Draft)</h3>
+            <p>This component only renders for draft posts.</p>
+            <p><strong>Current status:</strong> {postStatus}</p>
+        </div>
+    );
+};
 ```
 
-Common statuses: `'draft'`, `'publish'`, `'pending'`, `'private'`, `'future'`
+Common statuses: `'draft'`, `'publish'`, `'pending'`, `'private'`, `'future'`, `'auto-draft'`
 
 ### Detecting Page Template
 
-Execute code only when a specific page template is being used with [`getEditedPostAttribute()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-editor/#geteditedpostattribute):
+Execute code only when a specific page template is being used with [`getEditedPostAttribute()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-editor/#geteditedpostattribute).
+
+Example ([PageTemplateComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/PageTemplateComponent.js)):
 
 ```javascript
-const { template } = useSelect( ( select ) => {
-    return {
-        template: select( editorStore ).getEditedPostAttribute( 'template' ),
-    };
-}, [] );
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
-if ( template !== 'full-width' ) {
-    return null;
-}
+const PageTemplateComponent = () => {
+    const { template, postType } = useSelect( ( select ) => {
+        return {
+            template: select( editorStore ).getEditedPostAttribute( 'template' ),
+            postType: select( editorStore ).getCurrentPostType(),
+        };
+    }, [] );
 
-// Code here only runs when the 'full-width' template is active
+    // Only show for pages
+    if ( postType !== 'page' ) {
+        return null;
+    }
+
+    if ( template !== 'full-width' ) {
+        return null;
+    }
+
+    return (
+        <div className="example-section" data-testid="page-template">
+            <h3>✓ Page Template</h3>
+            <p>This component only renders when the 'full-width' template is active.</p>
+            <p><strong>Current template:</strong> {template || 'default'}</p>
+        </div>
+    );
+};
 ```
 
 ### Checking User Capabilities
 
-Restrict code execution based on current user permissions using [`canUser()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core/#canuser):
+Restrict code execution based on current user permissions using [`canUser()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core/#canuser).
+
+Example ([UserCapabilityComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/UserCapabilityComponent.js)):
 
 ```javascript
-const { canPublish } = useSelect( ( select ) => {
-    return {
-        canPublish: select( coreStore ).canUser( 'create', 'posts' ),
-    };
-}, [] );
+import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
 
-if ( ! canPublish ) {
-    return null;
-}
+const UserCapabilityComponent = () => {
+    const { canPublish } = useSelect( ( select ) => {
+        return {
+            canPublish: select( coreStore ).canUser( 'publish', 'posts' ),
+        };
+    }, [] );
 
-// Code here only runs for users who can publish posts
+    if ( ! canPublish ) {
+        return null;
+    }
+
+    return (
+        <div className="example-section" data-testid="user-capability">
+            <h3>✓ User Capability</h3>
+            <p>This component only renders for users who can publish posts.</p>
+            <p><strong>Can publish:</strong> {canPublish ? 'Yes' : 'No'}</p>
+        </div>
+    );
+};
 ```
 
 ### Detecting Editor Mode
 
-Run code only in specific editor modes (visual vs. code):
+Run code only in specific editor modes (visual vs. code).
+
+> **Note**: This pattern is not demonstrated in the example project, but follows the same useSelect pattern.
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
+
 const { editorMode } = useSelect( ( select ) => {
     return {
-        editorMode: select( 'core/edit-post' ).getEditorMode(),
+        editorMode: select( editPostStore ).getEditorMode(),
     };
 }, [] );
 
@@ -247,6 +309,10 @@ if ( editorMode !== 'visual' ) {
 Exclude the Site Editor and other non-viewable post types:
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { store as coreStore } from '@wordpress/core-data';
+
 const { isViewable } = useSelect( ( select ) => {
     const postType = select( editorStore ).getCurrentPostType();
     const postTypeObject = select( coreStore ).getPostType( postType );
@@ -268,9 +334,12 @@ This approach excludes all non-viewable post types like `wp_navigation`, `wp_blo
 
 WordPress defines a set of "design post types" that are used in the Site Editor. A common pattern in Gutenberg core is to exclude these post types to prevent UI from appearing in contexts where it doesn't belong.
 
-**Example from this project** ([ExcludeDesignPostTypesComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/ExcludeDesignPostTypesComponent.js)):
+Example ([ExcludeDesignPostTypesComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/ExcludeDesignPostTypesComponent.js)):
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+
 const DESIGN_POST_TYPES = [
     'wp_template',
     'wp_template_part',
@@ -320,11 +389,16 @@ const ExcludeDesignPostTypesComponent = () => {
 
 ### Detecting Selected Block Type
 
-Execute code only when a specific block type is selected using [`getSelectedBlock()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-block-editor/#getselectedblock):
+Execute code only when a specific block type is selected using [`getSelectedBlock()`](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-block-editor/#getselectedblock).
+
+> **Note**: This pattern is not demonstrated in the example project, but follows the same useSelect pattern.
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+
 const { selectedBlockName } = useSelect( ( select ) => {
-    const selectedBlock = select( 'core/block-editor' ).getSelectedBlock();
+    const selectedBlock = select( blockEditorStore ).getSelectedBlock();
     return {
         selectedBlockName: selectedBlock?.name,
     };
@@ -339,12 +413,17 @@ if ( selectedBlockName !== 'core/paragraph' ) {
 
 ### Checking Sidebar State
 
-Run code based on sidebar visibility:
+Run code based on sidebar visibility.
+
+> **Note**: This pattern is not demonstrated in the example project, but follows the same useSelect pattern.
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
+
 const { isSidebarOpened } = useSelect( ( select ) => {
     return {
-        isSidebarOpened: select( 'core/edit-post' ).isEditorSidebarOpened(),
+        isSidebarOpened: select( editPostStore ).isEditorSidebarOpened(),
     };
 }, [] );
 
@@ -359,9 +438,13 @@ if ( ! isSidebarOpened ) {
 
 Stack multiple conditions for precise control.
 
-**Example from this project** ([CombinedConditionsComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/CombinedConditionsComponent.js)):
+Example ([CombinedConditionsComponent.js](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/resources/js/components/CombinedConditionsComponent.js)):
 
 ```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { store as coreStore } from '@wordpress/core-data';
+
 const CombinedConditionsComponent = () => {
     const { postTypeName, postStatus, canEdit } = useSelect( ( select ) => {
         const { getCurrentPostType, getCurrentPostAttribute } = select( editorStore );
@@ -420,7 +503,7 @@ While the examples above use client-side detection with `useSelect`, you can als
 
 Check if the current screen is using the block editor.
 
-**Example from this project** ([server-side-detection.php#L32-L35](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L32-L35)):
+Example ([server-side-detection.php#L32-L35](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L32-L35)):
 
 ```php
 function cre_is_block_editor() {
@@ -435,7 +518,7 @@ This function checks if the current admin screen is using the block editor by ca
 
 Restrict code to specific post types before enqueueing.
 
-**Example from this project** ([server-side-detection.php#L63-L74](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L63-L74)):
+Example ([server-side-detection.php#L63-L74](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L63-L74)):
 
 ```php
 function cre_is_post_type( $post_type ) {
@@ -458,7 +541,7 @@ This function supports both single post types and arrays of post types, making i
 
 Check if you're on a post edit screen.
 
-**Example from this project** ([server-side-detection.php#L42-L45](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L42-L45)):
+Example ([server-side-detection.php#L42-L45](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L42-L45)):
 
 ```php
 function cre_is_post_edit_screen() {
@@ -473,7 +556,7 @@ This checks the `base` property of the screen object to confirm we're on a post 
 
 Check if you're in the Site Editor (Full Site Editing).
 
-**Example from this project** ([server-side-detection.php#L52-L55](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L52-L55)):
+Example ([server-side-detection.php#L52-L55](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L52-L55)):
 
 ```php
 function cre_is_site_editor() {
@@ -488,7 +571,7 @@ This uses the global `$pagenow` variable to detect the Site Editor. See [no-site
 
 Restrict based on user permissions.
 
-**Example from this project** ([server-side-detection.php#L95-L116](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L95-L116)):
+Example ([server-side-detection.php#L95-L116](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L95-L116)):
 
 ```php
 function cre_user_can_publish_posts() {
@@ -510,7 +593,7 @@ These wrapper functions make capability checks more semantic and reusable. See [
 
 Check the page template being used.
 
-**Example from this project** ([server-side-detection.php#L123-L133](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L123-L133)):
+Example ([server-side-detection.php#L123-L133](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L123-L133)):
 
 ```php
 function cre_is_template( $template ) {
@@ -531,7 +614,7 @@ This function checks if the current post uses a specific page template by compar
 
 Only load for specific post statuses.
 
-**Example from this project** ([server-side-detection.php#L140-L155](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L140-L155)):
+Example ([server-side-detection.php#L140-L155](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L140-L155)):
 
 ```php
 function cre_is_post_status( $status ) {
@@ -557,7 +640,7 @@ This function supports checking for a single status or an array of statuses, mak
 
 Stack multiple server-side checks for precise control.
 
-**Example from this project** ([server-side-detection.php#L198-L206](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L198-L206)):
+Example ([server-side-detection.php#L198-L206](https://github.com/juanma-wp/detect-site-post-editor/blob/main/plugin/includes/server-side-detection.php#L198-L206)):
 
 ```php
 function cre_check_conditions( $conditions ) {

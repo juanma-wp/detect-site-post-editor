@@ -20,6 +20,10 @@ import PageTemplateComponent from './components/PageTemplateComponent';
 import UserCapabilityComponent from './components/UserCapabilityComponent';
 import ExcludeDesignPostTypesComponent from './components/ExcludeDesignPostTypesComponent';
 import CombinedConditionsComponent from './components/CombinedConditionsComponent';
+import EditorModeComponent from './components/EditorModeComponent';
+import SiteEditorContextComponent from './components/SiteEditorContextComponent';
+import SelectedBlockTypeComponent from './components/SelectedBlockTypeComponent';
+import SidebarStateComponent from './components/SidebarStateComponent';
 
 
 /**
@@ -48,6 +52,10 @@ const ConditionalRenderingExamples = () => {
 				<UserCapabilityComponent />
 				<ExcludeDesignPostTypesComponent />
 				<CombinedConditionsComponent />
+				<EditorModeComponent />
+				<SiteEditorContextComponent />
+				<SelectedBlockTypeComponent />
+				<SidebarStateComponent />
 			</div>
 		</PluginDocumentSettingPanel>
 	);

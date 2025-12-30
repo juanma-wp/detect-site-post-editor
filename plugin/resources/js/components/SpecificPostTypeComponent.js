@@ -11,6 +11,11 @@ const SpecificPostTypeComponent = () => {
 		};
 	}, [] );
 
+	// Wait for data - getCurrentPostType should return a string, not undefined
+	if ( ! postTypeName ) {
+		return null;
+	}
+
 	const allowedPostTypes = [ 'page', 'product' ];
 	if ( ! allowedPostTypes.includes( postTypeName ) ) {
 		return null;
