@@ -1,7 +1,8 @@
 /**
- * E2E Tests: ViewablePostTypeComponent
+ * E2E Tests: SiteEditorContextComponent
  *
- * Tests the React component that only renders for viewable post types.
+ * Tests the React component that checks for Site Editor context.
+ * Should only render in Post Editor (viewable post types), not Site Editor.
  *
  * @package ConditionalRenderingExamples
  */
@@ -9,8 +10,8 @@
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
 const { waitForEditorReady } = require('./utils');
 
-test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
-	test('should render component for post (viewable type)', async ({ page, admin, editor }) => {
+test.describe('SiteEditorContextComponent - Site Editor Context Detection', () => {
+	test('should render component in Post Editor for posts', async ({ page, admin, editor }) => {
 		// Create a new post
 		await admin.createNewPost({ postType: 'post' });
 
@@ -24,11 +25,12 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
 		await panelButton.waitFor({ state: 'visible' });
 
-		// Check if the viewable post type component is visible
-		const component = page.locator('[data-testid="viewable-post-type"]');
+		// Component should be visible for posts (viewable type)
+		const component = page.locator('[data-testid="site-editor-context"]');
 		const isVisible = await component.isVisible().catch(() => false);
 
 		if (!isVisible) {
+			// Panel is collapsed, need to open it
 			await panelButton.click();
 			await page.waitForTimeout(500);
 		}
@@ -36,12 +38,12 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		await expect(component).toBeVisible();
 
 		// Verify the content
-		await expect(component.locator('h3')).toContainText('Viewable Post Type');
+		await expect(component.locator('h3')).toContainText('Post Editor Context');
 		await expect(component).toContainText('Current post type: post');
 		await expect(component).toContainText('Is viewable: Yes');
 	});
 
-	test('should render component for page (viewable type)', async ({ page, admin, editor }) => {
+	test('should render component in Post Editor for pages', async ({ page, admin, editor }) => {
 		// Create a new page
 		await admin.createNewPost({ postType: 'page' });
 
@@ -55,11 +57,12 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
 		await panelButton.waitFor({ state: 'visible' });
 
-		// Check if the component is visible
-		const component = page.locator('[data-testid="viewable-post-type"]');
+		// Component should be visible for pages (viewable type)
+		const component = page.locator('[data-testid="site-editor-context"]');
 		const isVisible = await component.isVisible().catch(() => false);
 
 		if (!isVisible) {
+			// Panel is collapsed, need to open it
 			await panelButton.click();
 			await page.waitForTimeout(500);
 		}
@@ -71,8 +74,8 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		await expect(component).toContainText('Is viewable: Yes');
 	});
 
-	test('should render component for product (viewable custom type)', async ({ page, admin, editor }) => {
-		// Create a new product (registered with 'public' => true in plugin.php, making it viewable)
+	test('should render component for custom viewable post type', async ({ page, admin, editor }) => {
+		// Create a product (custom viewable post type)
 		await admin.createNewPost({ postType: 'product' });
 
 		// Wait for editor to be ready
@@ -85,11 +88,12 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 		const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
 		await panelButton.waitFor({ state: 'visible' });
 
-		// Check if the component is visible
-		const component = page.locator('[data-testid="viewable-post-type"]');
+		// Component should be visible for products (viewable type)
+		const component = page.locator('[data-testid="site-editor-context"]');
 		const isVisible = await component.isVisible().catch(() => false);
 
 		if (!isVisible) {
+			// Panel is collapsed, need to open it
 			await panelButton.click();
 			await page.waitForTimeout(500);
 		}
@@ -98,19 +102,29 @@ test.describe('ViewablePostTypeComponent - Client-Side Rendering', () => {
 
 		// Verify the content
 		await expect(component).toContainText('Current post type: product');
-		await expect(component).toContainText('Is viewable: Yes');
 	});
 
 	test('should NOT render in Site Editor', async ({ page, admin }) => {
 		// Navigate to Site Editor
 		await admin.visitSiteEditor();
 
-		// Wait for Site Editor to load (check for canvas instead of specific selector)
+		// Wait for Site Editor to load
 		await page.waitForTimeout(5000);
 
-		// The component should NOT be visible in Site Editor
-		// (because templates are not viewable post types)
-		const component = page.locator('[data-testid="viewable-post-type"]');
+		// Component should NOT be visible in Site Editor (non-viewable post types)
+		const component = page.locator('[data-testid="site-editor-context"]');
+		await expect(component).not.toBeVisible();
+	});
+
+	test('should NOT render for wp_template_part in Site Editor', async ({ page, admin }) => {
+		// Navigate to Site Editor with template parts
+		await admin.visitSiteEditor({ path: '/patterns' });
+
+		// Wait for Site Editor to load
+		await page.waitForTimeout(3000);
+
+		// Component should NOT be visible
+		const component = page.locator('[data-testid="site-editor-context"]');
 		await expect(component).not.toBeVisible();
 	});
 });

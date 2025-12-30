@@ -6,14 +6,20 @@ import { store as coreStore } from '@wordpress/core-data';
  * Component that only renders for viewable post types
  */
 const ViewablePostTypeComponent = () => {
-	const { isViewable, postTypeName } = useSelect( ( select ) => {
+	const { isViewable, postTypeName, postTypeObject } = useSelect( ( select ) => {
 		const postType = select( editorStore ).getCurrentPostType();
-		const postTypeObject = select( coreStore ).getPostType( postType );
+		const typeObject = select( coreStore ).getPostType( postType );
 		return {
-			isViewable: postTypeObject?.viewable,
+			isViewable: typeObject?.viewable,
 			postTypeName: postType,
+			postTypeObject: typeObject,
 		};
 	}, [] );
+
+	// Wait for data to load - both postTypeName and postTypeObject should be available
+	if ( ! postTypeName || ! postTypeObject ) {
+		return null;
+	}
 
 	if ( ! isViewable ) {
 		return null;

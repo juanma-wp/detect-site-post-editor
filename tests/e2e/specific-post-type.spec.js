@@ -24,8 +24,19 @@ test.describe("SpecificPostTypeComponent - Client-Side Rendering", () => {
     // Open settings sidebar
     await editor.openDocumentSettingsSidebar();
 
+    // Check if panel needs to be expanded
+    const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
+    await panelButton.waitFor({ state: 'visible' });
+
     // Check if the specific post type component is visible
     const component = page.locator('[data-testid="specific-post-type"]');
+    const isVisible = await component.isVisible().catch(() => false);
+
+    if (!isVisible) {
+      await panelButton.click();
+      await page.waitForTimeout(500);
+    }
+
     await expect(component).toBeVisible();
 
     // Verify the text content
@@ -47,8 +58,19 @@ test.describe("SpecificPostTypeComponent - Client-Side Rendering", () => {
     // Open settings sidebar
     await editor.openDocumentSettingsSidebar();
 
+    // Check if panel needs to be expanded
+    const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
+    await panelButton.waitFor({ state: 'visible' });
+
     // Check if the component is visible
     const component = page.locator('[data-testid="specific-post-type"]');
+    const isVisible = await component.isVisible().catch(() => false);
+
+    if (!isVisible) {
+      await panelButton.click();
+      await page.waitForTimeout(500);
+    }
+
     await expect(component).toBeVisible();
 
     // Verify the text content
@@ -69,8 +91,20 @@ test.describe("SpecificPostTypeComponent - Client-Side Rendering", () => {
     // Open settings sidebar
     await editor.openDocumentSettingsSidebar();
 
+    // Check if panel needs to be expanded
+    const panelButton = page.locator('button:has-text("Conditional Rendering Examples")');
+    await panelButton.waitFor({ state: 'visible' });
+
     // The specific post type component should NOT be visible
     const component = page.locator('[data-testid="specific-post-type"]');
+
+    // Open panel to check if component is not rendered
+    const isVisible = await component.isVisible().catch(() => false);
+    if (!isVisible) {
+      await panelButton.click();
+      await page.waitForTimeout(500);
+    }
+
     await expect(component).not.toBeVisible();
   });
 

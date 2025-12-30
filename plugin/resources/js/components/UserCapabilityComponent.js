@@ -11,7 +11,9 @@ const UserCapabilityComponent = () => {
 		};
 	}, [] );
 
-	if ( ! canPublish ) {
+	// canUser returns undefined while loading, null/false when user cannot, true when they can
+	// Only hide component when explicitly false (not just falsy)
+	if ( canPublish === false ) {
 		return null;
 	}
 
