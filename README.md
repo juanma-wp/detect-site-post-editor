@@ -16,6 +16,8 @@ This project provides working examples and tests for conditionally executing cod
   - Component: `ExcludePostTypesComponent.js` - Excludes 'attachment' and 'wp_block' post types
 - ✅ **Viewable Post Types** - Only execute for public-facing content (excludes Site Editor)
   - Component: `ViewablePostTypeComponent.js` - Uses `postTypeObject.viewable` to exclude Site Editor contexts
+- ✅ **Site Editor Context** - Detect and exclude Site Editor contexts specifically
+  - Component: `SiteEditorContextComponent.js` - Only renders in Post Editor by checking viewable post types
 - ✅ **Post Status** - Conditional execution based on draft/publish status
   - Component: `PostStatusComponent.js` - Only renders for draft posts (including auto-draft)
 - ✅ **Page Templates** - Detect when specific page templates are active
@@ -24,6 +26,12 @@ This project provides working examples and tests for conditionally executing cod
   - Component: `UserCapabilityComponent.js` - Only renders for users who can publish posts
 - ✅ **Exclude Design Post Types** - Skip Site Editor contexts (templates, navigation, etc.)
   - Component: `ExcludeDesignPostTypesComponent.js` - Excludes wp_template, wp_template_part, wp_block, and wp_navigation
+- ✅ **Editor Mode** - Detect current editor mode (visual vs code)
+  - Component: `EditorModeComponent.js` - Only renders when editor is in visual mode
+- ✅ **Selected Block Type** - Detect the currently selected block
+  - Component: `SelectedBlockTypeComponent.js` - Only renders when a paragraph block is selected
+- ✅ **Sidebar State** - Check if document settings sidebar is open
+  - Component: `SidebarStateComponent.js` - Only renders when the sidebar is open
 - ✅ **Combined Conditions** - Multiple conditions working together
   - Component: `CombinedConditionsComponent.js` - Requires post type = 'page', status = 'draft', and user has edit permissions
 
@@ -139,10 +147,14 @@ This single command will:
 │       │   ├── SpecificPostTypeComponent.js
 │       │   ├── ExcludePostTypesComponent.js
 │       │   ├── ViewablePostTypeComponent.js
+│       │   ├── SiteEditorContextComponent.js
 │       │   ├── PostStatusComponent.js
 │       │   ├── PageTemplateComponent.js
 │       │   ├── UserCapabilityComponent.js
 │       │   ├── ExcludeDesignPostTypesComponent.js
+│       │   ├── EditorModeComponent.js
+│       │   ├── SelectedBlockTypeComponent.js
+│       │   ├── SidebarStateComponent.js
 │       │   └── CombinedConditionsComponent.js
 │       └── server-conditionals/      # Server-side conditional examples
 │           ├── editor-only.js
@@ -156,10 +168,14 @@ This single command will:
 │   │   ├── specific-post-type.spec.js
 │   │   ├── exclude-post-types.spec.js
 │   │   ├── viewable-post-type.spec.js
+│   │   ├── site-editor-context.spec.js
 │   │   ├── post-status.spec.js
 │   │   ├── page-template.spec.js
 │   │   ├── user-capability.spec.js
 │   │   ├── exclude-design-post-types.spec.js
+│   │   ├── editor-mode.spec.js
+│   │   ├── selected-block-type.spec.js
+│   │   ├── sidebar-state.spec.js
 │   │   └── combined-conditions.spec.js
 │   └── php/                        # PHP unit tests
 │       ├── bootstrap.php
@@ -203,10 +219,14 @@ Each test file validates specific conditional rendering patterns:
 | `specific-post-type.spec.js` | Components render only for allowed post types (page, product) |
 | `exclude-post-types.spec.js` | Components exclude specific post types (attachment, wp_block) |
 | `viewable-post-type.spec.js` | Components exclude Site Editor contexts |
+| `site-editor-context.spec.js` | Site Editor context detection works correctly (excludes templates, navigation, etc.) |
 | `post-status.spec.js` | Components respect draft/publish status |
 | `page-template.spec.js` | Template-specific rendering works (full-width template) |
 | `user-capability.spec.js` | Components render based on user permissions (publish_posts capability) |
 | `exclude-design-post-types.spec.js` | Design post types are properly excluded (wp_template, wp_template_part, wp_block, wp_navigation) |
+| `editor-mode.spec.js` | Components render based on editor mode (visual vs code) |
+| `selected-block-type.spec.js` | Components detect currently selected block type (paragraph block) |
+| `sidebar-state.spec.js` | Components render based on sidebar open/closed state |
 | `combined-conditions.spec.js` | Multiple conditions work together (page + draft + can edit) |
 
 ## 💻 Development
@@ -292,7 +312,68 @@ const MyComponent = () => {
 };
 ```
 
-### Example 3: Combined Conditions
+### Example 3: Detect Editor Mode
+
+```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
+
+const MyComponent = () => {
+    const { editorMode } = useSelect((select) => ({
+        editorMode: select(editPostStore).getEditorMode(),
+    }), []);
+
+    // Only show in visual editor mode
+    if (editorMode !== 'visual') {
+        return null;
+    }
+
+    return <div>Only visible in visual mode!</div>;
+};
+```
+
+#### Example 4: Detect Selected Block Type
+
+```javascript
+import { useSelect } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+
+const MyComponent = () => {
+    const selectedBlockName = useSelect((select) => {
+        const selectedBlock = select(blockEditorStore).getSelectedBlock();
+        return selectedBlock?.name;
+    }, []);
+
+    // Only show when a paragraph block is selected
+    if (selectedBlockName !== 'core/paragraph') {
+        return null;
+    }
+
+    return <div>Paragraph block selected!</div>;
+};
+```
+
+#### Example 5: Check Sidebar State
+
+```javascript
+import { useSelect } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
+
+const MyComponent = () => {
+    const isSidebarOpened = useSelect((select) => {
+        return select(editPostStore)?.isEditorSidebarOpened();
+    }, []);
+
+    // Only show when sidebar is open
+    if (!isSidebarOpened) {
+        return null;
+    }
+
+    return <div>Sidebar is open!</div>;
+};
+```
+
+#### Example 6: Combined Conditions
 
 ```javascript
 const MyComponent = () => {
